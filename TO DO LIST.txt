@@ -1,10 +1,9 @@
-- Dynamic Teleporter
 - Item Logy & GM Logy
 - Anticheat
 - GM Trade Block
 - Duel Reset (CD, MANA, HP)
-- BL+HERO Zákaz Dual Buff
-- VIP Systém
+- BL+HERO ZÃ¡kaz Dual Buff
+- VIP SystÃ©m
 - Transmogrification
 - 1v1 Arena
 - Disable vehicle in Arena

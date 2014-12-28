@@ -12,8 +12,11 @@ file(GLOB_RECURSE sources_Custom Custom/*.cpp Custom/*.h)
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
-  ${sources_Custom}
+#  ${sources_Custom}
 Custom/dynamic_teleporter.cpp
+Custom/Transmog/Transmogrification.cpp
+Custom/Transmog/Transmogrification.h
+Custom/Transmog/Transmogrifier.cpp
 )
 
 message("  -> Prepared: Custom")

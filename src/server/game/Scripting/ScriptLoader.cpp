@@ -1420,6 +1420,8 @@ void AddBattlegroundScripts()
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
 void AddSC_npc_dynamic_teleporter();
+void AddSC_PWS_Transmogrification();
+void AddSC_CS_Transmogrification();
 #endif
 
 void AddCustomScripts()
@@ -1427,5 +1429,7 @@ void AddCustomScripts()
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
 	AddSC_npc_dynamic_teleporter();
+	AddSC_PWS_Transmogrification();
+	AddSC_CS_Transmogrification();
 #endif
 }

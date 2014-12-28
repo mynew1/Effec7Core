@@ -1,5 +1,4 @@
-﻿- GM Trade Block
-- Duel Reset (CD, MANA, HP)
+﻿- Duel Reset (CD, MANA, HP)
 - BL+HERO Zákaz Dual Buff
 - VIP Systém
 - Transmogrification

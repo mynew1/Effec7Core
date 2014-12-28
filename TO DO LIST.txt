@@ -1,7 +1,4 @@
-﻿- Duel Reset (CD, MANA, HP)
-- BL+HERO Zákaz Dual Buff
-- VIP Systém
-- Transmogrification
+﻿- VIP Systém
 - 1v1 Arena
 - Disable vehicle in Arena
 - Disable WPE Loot Duplicating

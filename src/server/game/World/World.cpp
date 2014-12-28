@@ -21,6 +21,7 @@
 */
 
 #include "World.h"
+#include "DynamicTeleportMgr.h"
 #include "AchievementMgr.h"
 #include "ArenaTeamMgr.h"
 #include "AuctionHouseBot.h"
@@ -1835,6 +1836,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Calculate guild limitation(s) reset time...");
     InitGuildResetTime();
+
+	TC_LOG_INFO("server.loading", "Loading Dynamic Teleports...");
+	sDynamicTeleportMgr->Init();
 
     LoadCharacterNameData();
 

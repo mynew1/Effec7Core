@@ -12200,7 +12200,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
             pItem->SetItemRandomProperties(randomPropertyId);
         pItem = StoreItem(dest, pItem, update);
 		
-		if (m_session)
+		/*if (m_session)
 		{
 			Player* pPlayer = m_session->GetPlayer();
 			uint64 sel_guid = pPlayer->GetTarget();
@@ -12221,7 +12221,8 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
 				stmt->setString(7, target);
 				CharacterDatabase.Execute(stmt);
 			}
-		}
+		}*/
+
         if (allowedLooters.size() > 1 && pItem->GetTemplate()->GetMaxStackSize() == 1 && pItem->IsSoulBound())
         {
             pItem->SetSoulboundTradeable(allowedLooters);
@@ -12724,7 +12725,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
         sScriptMgr->OnItemRemove(this, pItem);
 		
-		if (m_session)
+		/*if (m_session)
 		{
 			Player* pPlayer = m_session->GetPlayer();
 			uint64 sel_guid = pPlayer->GetTarget();
@@ -12745,7 +12746,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 				stmt->setString(7, target);
 				CharacterDatabase.Execute(stmt);
 			}
-		}
+		}*/
 
         if (bag == INVENTORY_SLOT_BAG_0)
         {

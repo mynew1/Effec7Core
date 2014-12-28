@@ -59,6 +59,18 @@ class MapManager
             Map::GetZoneAndAreaIdByAreaFlag(zoneid, areaid, GetAreaFlag(mapid, x, y, z), mapid);
         }
 
+		static float NormalizeOrientation(float o)
+		{
+			if (o < 0)
+			{
+				float mod = o *-1;
+				mod = fmod(mod, 2.0f * static_cast<float>(M_PI));
+				mod = -mod + 2.0f * static_cast<float>(M_PI);
+				return mod;
+			}
+			return fmod(o, 2.0f * static_cast<float>(M_PI));
+		}
+
         void Initialize(void);
         void Update(uint32);
 

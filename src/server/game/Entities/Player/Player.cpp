@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AnticheatMgr.h"
 #include "Player.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
@@ -1563,6 +1564,8 @@ void Player::Update(uint32 p_time)
     if (!IsInWorld())
         return;
 
+	// sAnticheatMgr->HandleHackDetectionTimer(this, p_time);
+
     // undelivered mail
     if (m_nextMailDelivereTime && m_nextMailDelivereTime <= time(NULL))
     {
@@ -2135,6 +2138,8 @@ void Player::SendTeleportAckPacket()
 
 bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)
 {
+	//	sAnticheatMgr->DisableAnticheatDetection(this, true);
+
     if (!MapManager::IsValidMapCoord(mapid, x, y, z, orientation))
     {
         TC_LOG_ERROR("maps", "TeleportTo: invalid map (%d) or invalid coordinates (X: %f, Y: %f, Z: %f, O: %f) given when teleporting player (GUID: %u, name: %s, map: %d, X: %f, Y: %f, Z: %f, O: %f).",
@@ -12195,30 +12200,28 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
             pItem->SetItemRandomProperties(randomPropertyId);
         pItem = StoreItem(dest, pItem, update);
 		
-
 		if (m_session)
 		{
-				Player* pPlayer = m_session->GetPlayer();
-				ObjectGuid sel_guid = pPlayer->GetTarget();
-				const ItemTemplate* proto = pItem->GetTemplate();
-				if (proto->Quality >= ITEM_QUALITY_EPIC && (proto->ItemLevel >= 200 || (proto->Class == ITEM_CLASS_MISC && proto->ItemLevel >= 80)))
-				{
-					PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ITEM);
-					stmt->setUInt32(0, GetGUIDLow());
-					stmt->setString(1, pPlayer->GetName());
-					stmt->setUInt32(2, m_session->GetAccountId());
-					stmt->setUInt32(3, pItem->GetEntry());
-					stmt->setUInt32(4, pItem->GetGUID());
-					stmt->setUInt32(5, 0);
-					char position[96];
-					sprintf(position, "X: %f Y: %f Z: %f Map: %u", pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), pPlayer->GetMapId());
-					stmt->setString(6, position); char target[96];
-					sprintf(target, "%s: %s (GUID: %u)", sel_guid.GetTypeName(), (pPlayer->GetSelectedUnit()) ? pPlayer->GetSelectedUnit()->GetName().c_str() : "", sel_guid.GetCounter());
-					stmt->setString(7, target);
-					CharacterDatabase.Execute(stmt);
+			Player* pPlayer = m_session->GetPlayer();
+			uint64 sel_guid = pPlayer->GetTarget();
+			const ItemTemplate* proto = pItem->GetTemplate();
+			if (proto->Quality >= ITEM_QUALITY_EPIC && (proto->ItemLevel >= 200 || (proto->Class == ITEM_CLASS_MISC && proto->ItemLevel >= 80)))
+			{
+				PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ITEM);
+				stmt->setUInt32(0, GetGUIDLow());
+				stmt->setString(1, pPlayer->GetName());
+				stmt->setUInt32(2, m_session->GetAccountId());
+				stmt->setUInt32(3, pItem->GetEntry());
+				stmt->setUInt32(4, pItem->GetGUID());
+				stmt->setUInt32(5, 0);
+				char position[96];
+				sprintf(position, "X: %f Y: %f Z: %f Map: %u", pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), pPlayer->GetMapId());
+				stmt->setString(6, position); char target[96];
+				sprintf(target, "%s: %s (GUID: %u)", pPlayer->GetSelectedPlayer()->GetName(), (pPlayer->GetSelectedUnit()) ? pPlayer->GetSelectedUnit()->GetName().c_str() : "", pPlayer->GetSelectedPlayer()->GetGUID());
+				stmt->setString(7, target);
+				CharacterDatabase.Execute(stmt);
 			}
 		}
-
         if (allowedLooters.size() > 1 && pItem->GetTemplate()->GetMaxStackSize() == 1 && pItem->IsSoulBound())
         {
             pItem->SetSoulboundTradeable(allowedLooters);
@@ -12720,27 +12723,27 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
         ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
         sScriptMgr->OnItemRemove(this, pItem);
-
+		
 		if (m_session)
 		{
-				Player* pPlayer = m_session->GetPlayer();
-				ObjectGuid sel_guid = pPlayer->GetTarget();
-				if (proto->Quality >= ITEM_QUALITY_EPIC && (proto->ItemLevel >= 200 || (proto->Class == ITEM_CLASS_MISC && proto->ItemLevel >= 80)))
-				{
-					PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ITEM);
-					stmt->setUInt32(0, GetGUIDLow());
-					stmt->setString(1, pPlayer->GetName());
-					stmt->setUInt32(2, m_session->GetAccountId());
-					stmt->setUInt32(3, pItem->GetEntry());
-					stmt->setUInt32(4, pItem->GetGUID());
-					stmt->setUInt32(5, 1);
-					char position[96];
-					sprintf(position, "X: %f Y: %f Z: %f Map: %u", pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), pPlayer->GetMapId());
-					stmt->setString(6, position);
-					char target[96];
-					sprintf(target, "%s: %s (GUID: %u)", sel_guid.GetTypeName(), (pPlayer->GetSelectedUnit()) ? pPlayer->GetSelectedUnit()->GetName().c_str() : "", sel_guid.GetCounter());
-					stmt->setString(7, target);
-					CharacterDatabase.Execute(stmt);
+			Player* pPlayer = m_session->GetPlayer();
+			uint64 sel_guid = pPlayer->GetTarget();
+			if (proto->Quality >= ITEM_QUALITY_EPIC && (proto->ItemLevel >= 200 || (proto->Class == ITEM_CLASS_MISC && proto->ItemLevel >= 80)))
+			{
+				PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ITEM);
+				stmt->setUInt32(0, GetGUIDLow());
+				stmt->setString(1, pPlayer->GetName());
+				stmt->setUInt32(2, m_session->GetAccountId());
+				stmt->setUInt32(3, pItem->GetEntry());
+				stmt->setUInt32(4, pItem->GetGUID());
+				stmt->setUInt32(5, 1);
+				char position[96];
+				sprintf(position, "X: %f Y: %f Z: %f Map: %u", pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), pPlayer->GetMapId());
+				stmt->setString(6, position);
+				char target[96];
+				sprintf(target, "%s: %s (GUID: %u)", pPlayer->GetSelectedPlayer()->GetGUID(), (pPlayer->GetSelectedUnit()) ? pPlayer->GetSelectedUnit()->GetName().c_str() : "", pPlayer->GetSelectedPlayer()->GetGUID());
+				stmt->setString(7, target);
+				CharacterDatabase.Execute(stmt);
 			}
 		}
 
@@ -19541,6 +19544,9 @@ void Player::SaveToDB(bool create /*=false*/)
         _SaveStats(trans);
 
     CharacterDatabase.CommitTransaction(trans);
+
+	// we save the data here to prevent spamming
+	sAnticheatMgr->SavePlayerData(this);
 
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())

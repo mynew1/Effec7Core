@@ -187,8 +187,11 @@ class spell_sha_bloodlust : public SpellScriptLoader
 
             void ApplyDebuff()
             {
-                if (Unit* target = GetHitUnit())
-                    target->CastSpell(target, SPELL_SHAMAN_SATED, true);
+				if (Unit* target = GetHitUnit())
+				{
+					target->CastSpell(target, SPELL_SHAMAN_SATED, true);
+					target->CastSpell(target, SPELL_SHAMAN_EXHAUSTION, true);
+				}
             }
 
             void Register() override
@@ -650,8 +653,11 @@ class spell_sha_heroism : public SpellScriptLoader
 
             void ApplyDebuff()
             {
-                if (Unit* target = GetHitUnit())
-                    target->CastSpell(target, SPELL_SHAMAN_EXHAUSTION, true);
+				if (Unit* target = GetHitUnit())
+				{
+					target->CastSpell(target, SPELL_SHAMAN_EXHAUSTION, true);
+					target->CastSpell(target, SPELL_SHAMAN_SATED, true);
+				}
             }
 
             void Register() override

@@ -344,6 +344,10 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_INS_GM_SUBSURVEY, "INSERT INTO gm_subsurveys (surveyId, subsurveyId, rank, comment) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_LAG_REPORT, "INSERT INTO lag_reports (guid, lagType, mapId, posX, posY, posZ, latency, createTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 
+	// Data Log
+	PrepareStatement(CHAR_ITEM, "INSERT INTO logy_item_get (guid, player, account, item, item_guid, state, position, target) VALUES (?, ?,?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+	PrepareStatement(CHAR_GM, "INSERT INTO logy_gm (player, account, command, position, selected) VALUES (?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+
     // LFG Data
     PrepareStatement(CHAR_INS_LFG_DATA, "INSERT INTO lfg_data (guid, dungeon, state) VALUES (?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_LFG_DATA, "DELETE FROM lfg_data WHERE guid = ?", CONNECTION_ASYNC);

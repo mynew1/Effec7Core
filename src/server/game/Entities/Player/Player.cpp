@@ -12194,6 +12194,30 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
         if (randomPropertyId)
             pItem->SetItemRandomProperties(randomPropertyId);
         pItem = StoreItem(dest, pItem, update);
+		
+
+		if (m_session)
+		{
+				Player* pPlayer = m_session->GetPlayer();
+				ObjectGuid sel_guid = pPlayer->GetTarget();
+				const ItemTemplate* proto = pItem->GetTemplate();
+				if (proto->Quality >= ITEM_QUALITY_EPIC && (proto->ItemLevel >= 200 || (proto->Class == ITEM_CLASS_MISC && proto->ItemLevel >= 80)))
+				{
+					PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ITEM);
+					stmt->setUInt32(0, GetGUIDLow());
+					stmt->setString(1, pPlayer->GetName());
+					stmt->setUInt32(2, m_session->GetAccountId());
+					stmt->setUInt32(3, pItem->GetEntry());
+					stmt->setUInt32(4, pItem->GetGUID());
+					stmt->setUInt32(5, 0);
+					char position[96];
+					sprintf(position, "X: %f Y: %f Z: %f Map: %u", pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), pPlayer->GetMapId());
+					stmt->setString(6, position); char target[96];
+					sprintf(target, "%s: %s (GUID: %u)", sel_guid.GetTypeName(), (pPlayer->GetSelectedUnit()) ? pPlayer->GetSelectedUnit()->GetName().c_str() : "", sel_guid.GetCounter());
+					stmt->setString(7, target);
+					CharacterDatabase.Execute(stmt);
+			}
+		}
 
         if (allowedLooters.size() > 1 && pItem->GetTemplate()->GetMaxStackSize() == 1 && pItem->IsSoulBound())
         {
@@ -12696,6 +12720,29 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
         ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
         sScriptMgr->OnItemRemove(this, pItem);
+
+		if (m_session)
+		{
+				Player* pPlayer = m_session->GetPlayer();
+				ObjectGuid sel_guid = pPlayer->GetTarget();
+				if (proto->Quality >= ITEM_QUALITY_EPIC && (proto->ItemLevel >= 200 || (proto->Class == ITEM_CLASS_MISC && proto->ItemLevel >= 80)))
+				{
+					PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ITEM);
+					stmt->setUInt32(0, GetGUIDLow());
+					stmt->setString(1, pPlayer->GetName());
+					stmt->setUInt32(2, m_session->GetAccountId());
+					stmt->setUInt32(3, pItem->GetEntry());
+					stmt->setUInt32(4, pItem->GetGUID());
+					stmt->setUInt32(5, 1);
+					char position[96];
+					sprintf(position, "X: %f Y: %f Z: %f Map: %u", pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), pPlayer->GetMapId());
+					stmt->setString(6, position);
+					char target[96];
+					sprintf(target, "%s: %s (GUID: %u)", sel_guid.GetTypeName(), (pPlayer->GetSelectedUnit()) ? pPlayer->GetSelectedUnit()->GetName().c_str() : "", sel_guid.GetCounter());
+					stmt->setString(7, target);
+					CharacterDatabase.Execute(stmt);
+			}
+		}
 
         if (bag == INVENTORY_SLOT_BAG_0)
         {

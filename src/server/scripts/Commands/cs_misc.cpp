@@ -1189,10 +1189,10 @@ public:
         Item* item = playerTarget->StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
 
         // remove binding (let GM give it to another player later)
-        if (player == playerTarget)
-            for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
-                if (Item* item1 = player->GetItemByPos(itr->pos))
-                    item1->SetBinding(false);
+       // if (player == playerTarget)
+         //   for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
+           //     if (Item* item1 = player->GetItemByPos(itr->pos))
+             //       item1->SetBinding(false);
 
         if (count > 0 && item)
         {
@@ -1247,8 +1247,8 @@ public:
                     Item* item = playerTarget->StoreNewItem(dest, itr->second.ItemId, true);
 
                     // remove binding (let GM give it to another player later)
-                    if (player == playerTarget)
-                        item->SetBinding(false);
+           //         if (player == playerTarget)
+             //           item->SetBinding(false);
 
                     player->SendNewItem(item, 1, false, true);
                     if (player != playerTarget)

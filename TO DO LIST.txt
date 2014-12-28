@@ -8,3 +8,4 @@
 - 1v1 Arena
 - Disable vehicle in Arena
 - Disable WPE Loot Duplicating
+- Custom Rates (.rate) command.

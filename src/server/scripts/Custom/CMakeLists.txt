@@ -17,6 +17,7 @@ Custom/dynamic_teleporter.cpp
 Custom/Transmog/Transmogrification.cpp
 Custom/Transmog/Transmogrification.h
 Custom/Transmog/Transmogrifier.cpp
+Custom/duel_reset.cpp
 )
 
 message("  -> Prepared: Custom")

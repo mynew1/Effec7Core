@@ -18,6 +18,7 @@ Custom/Transmog/Transmogrification.cpp
 Custom/Transmog/Transmogrification.h
 Custom/Transmog/Transmogrifier.cpp
 Custom/duel_reset.cpp
+Custom/1v1_arena.cpp
 )
 
 message("  -> Prepared: Custom")

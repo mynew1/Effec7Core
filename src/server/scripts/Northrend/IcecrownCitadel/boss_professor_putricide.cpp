@@ -106,6 +106,9 @@ enum Spells
     SPELL_MUTATED_TRANSFORMATION_DAMAGE     = 70405,
     SPELL_MUTATED_TRANSFORMATION_NAME       = 72401,
 
+    // Hack Fix
+    SPELL_UNCONTROLLABLE_FRENZY = 70923,
+
     // Unholy Infusion
     SPELL_UNHOLY_INFUSION_CREDIT            = 71518
 };
@@ -270,6 +273,7 @@ class boss_professor_putricide : public CreatureScript
                 DoCast(me, SPELL_OOZE_TANK_PROTECTION, true);
                 DoZoneInCombat(me);
 
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UNCONTROLLABLE_FRENZY);
                 instance->SetBossState(DATA_PROFESSOR_PUTRICIDE, IN_PROGRESS);
             }
 

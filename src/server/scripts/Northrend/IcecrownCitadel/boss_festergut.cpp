@@ -51,6 +51,9 @@ enum Spells
     SPELL_MORTAL_WOUND          = 71127,
     SPELL_DECIMATE              = 71123,
     SPELL_PLAGUE_STENCH         = 71805,
+
+    // Hack Fix
+    SPELL_UNCONTROLLABLE_FRENZY = 70923,
 };
 
 // Used for HasAura checks
@@ -128,6 +131,7 @@ class boss_festergut : public CreatureScript
                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->DoAction(ACTION_FESTERGUT_COMBAT);
                 DoZoneInCombat();
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UNCONTROLLABLE_FRENZY);
             }
 
             void JustDied(Unit* /*killer*/) override

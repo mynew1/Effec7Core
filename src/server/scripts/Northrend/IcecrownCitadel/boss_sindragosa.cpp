@@ -87,6 +87,9 @@ enum Spells
     SPELL_FROST_INFUSION_CREDIT = 72289,
     SPELL_FROST_IMBUED_BLADE    = 72290,
     SPELL_FROST_INFUSION        = 72292,
+
+    // Hack Fix
+    SPELL_UNCONTROLLABLE_FRENZY = 70923,
 };
 
 enum Events
@@ -273,6 +276,7 @@ class boss_sindragosa : public CreatureScript
 
                 BossAI::EnterCombat(victim);
                 DoCast(me, SPELL_FROST_AURA);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UNCONTROLLABLE_FRENZY);
                 DoCast(me, SPELL_PERMAEATING_CHILL);
                 Talk(SAY_AGGRO);
             }

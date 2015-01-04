@@ -96,6 +96,9 @@ enum Spells
 
     // Nightmare Cloud
     SPELL_TWISTED_NIGHTMARE             = 71941,
+
+    // Hack Fix
+    SPELL_UNCONTROLLABLE_FRENZY = 70923,
 };
 
 #define SUMMON_PORTAL RAID_MODE<uint32>(SPELL_PRE_SUMMON_DREAM_PORTAL, SPELL_PRE_SUMMON_DREAM_PORTAL, \
@@ -521,6 +524,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
 
                 me->setActive(true);
                 DoZoneInCombat();
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UNCONTROLLABLE_FRENZY);
                 instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, IN_PROGRESS);
                 if (Creature* valithria = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER)))
                     valithria->AI()->DoAction(ACTION_ENTER_COMBAT);

@@ -66,6 +66,9 @@ enum Spells
     SPELL_DECIMATE                          = 71123,
     SPELL_AWAKEN_PLAGUED_ZOMBIES            = 71159,
 
+    // Hack Fix
+    SPELL_UNCONTROLLABLE_FRENZY = 70923,
+
     // Professor Putricide
     SPELL_VILE_GAS_H                        = 72272,
     SPELL_VILE_GAS_TRIGGER                  = 72285,
@@ -130,6 +133,7 @@ class boss_rotface : public CreatureScript
                     professor->AI()->DoAction(ACTION_ROTFACE_COMBAT);
 
                 DoZoneInCombat();
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UNCONTROLLABLE_FRENZY);
                 DoCast(me, SPELL_GREEN_ABOMINATION_HITTIN__YA_PROC, true);
             }
 

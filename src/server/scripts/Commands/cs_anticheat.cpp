@@ -27,17 +27,17 @@ public:
 	{
 		static ChatCommand anticheatCommandTable[] =
 		{
-			{ "player",         SEC_GAMEMASTER,     true,  &HandleAntiCheatPlayerCommand,         "", NULL },
-			{ "handle",         SEC_ADMINISTRATOR,  true,  &HandleAntiCheatHandleCommand,         "", NULL },
-			{ "jail",           SEC_GAMEMASTER,     true,  &HandleAnticheatJailCommand,           "", NULL },
-			{ "warn",           SEC_GAMEMASTER,     true,  &HandleAnticheatWarnCommand,           "", NULL },
-			{ "targetmarker",   SEC_MODERATOR,      true,  &HandleAnticheatTargetMarkerCommand,   "", NULL },
+			{ "player",         rbac::RBAC_PERM_COMMAND_ANTICHEAT_PLAYER,     true,  &HandleAntiCheatPlayerCommand,         "", NULL },
+			{ "handle",         rbac::RBAC_PERM_COMMAND_ANTICHEAT_HANDLE,  true,  &HandleAntiCheatHandleCommand,         "", NULL },
+			{ "jail",           rbac::RBAC_PERM_COMMAND_ANTICHEAT_JAIL,     true,  &HandleAnticheatJailCommand,           "", NULL },
+			{ "warn",           rbac::RBAC_PERM_COMMAND_ANTICHEAT_WARN,     true,  &HandleAnticheatWarnCommand,           "", NULL },
+			{ "targetmarker",   rbac::RBAC_PERM_COMMAND_ANTICHEAT_TARGETMARKER,      true,  &HandleAnticheatTargetMarkerCommand,   "", NULL },
 			{ NULL,             0,                  false, NULL,                                  "", NULL }
 		};
 
 		static ChatCommand commandTable[] =
 		{
-			{ "anticheat",      SEC_GAMEMASTER,     true, NULL,                     "",  anticheatCommandTable},
+			{ "anticheat",      rbac::RBAC_PERM_COMMAND_ANTICHEAT,     true, NULL,                     "",  anticheatCommandTable},
 			{ NULL,             0,                  false, NULL,                               "", NULL }
 		};
 

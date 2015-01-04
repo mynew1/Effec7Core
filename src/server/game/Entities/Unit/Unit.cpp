@@ -14175,6 +14175,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         bool takeCharges = false;
         SpellInfo const* spellInfo = i->aura->GetSpellInfo();
         uint32 Id = i->aura->GetId();
+        if (Id == 56817 && procSpell != NULL && procSpell->Id != 56815) // HACK FIX: RUNE STRIKE
+            continue;
 
         AuraApplication* aurApp = i->aura->GetApplicationOfTarget(GetGUID());
 

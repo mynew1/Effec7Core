@@ -1250,6 +1250,14 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
     if (!IsInMap(obj))
         return false;
 
+    // Sindragosa's Ice Tomb Hack Fix
+    if (obj->GetTypeId() == TYPEID_UNIT)
+        if (obj->GetEntry() == 36980)
+            return true;
+    if (GetTypeId() == TYPEID_UNIT)
+        if (GetEntry() == 36980)
+            return true;
+
     float ox, oy, oz;
     obj->GetPosition(ox, oy, oz);
     return IsWithinLOS(ox, oy, oz);

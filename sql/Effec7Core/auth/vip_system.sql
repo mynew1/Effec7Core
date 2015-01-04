@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS `account_premium` (
+  `id` INT(11) NOT NULL DEFAULT '0' COMMENT 'Account id',
+  `setdate` BIGINT(40) NOT NULL DEFAULT '0',
+  `unsetdate` BIGINT(40) NOT NULL DEFAULT '0',
+  `premium_type` TINYINT(4) UNSIGNED NOT NULL DEFAULT '1',
+  `active` TINYINT(4) NOT NULL DEFAULT '1',
+  PRIMARY KEY  (`id`,`setdate`)
+) ENGINE=MYISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Premium Accounts';

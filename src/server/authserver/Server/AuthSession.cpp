@@ -220,6 +220,9 @@ bool AuthSession::HandleLogonChallenge()
     // Verify that this IP is not in the ip_banned table
     LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
 
+    // VIP Accounts System
+    LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_PREMIUM));
+
     std::string ipAddress = GetRemoteIpAddress().to_string();
     uint16 port = GetRemotePort();
 

@@ -3485,3 +3485,24 @@ Transmogrification.SetCopperCost = 0
 
 #
 ###################################################################################################
+
+###################################################################################################
+
+###################################################################################################
+# VIP CONFIG 
+#
+# Rate.XP.Kill.VIP
+# Rate.XP.Quest.VIP
+# Rate.XP.Explore.VIP
+# Rate.Honor.VIP
+# Rate.Reputation.Gain.VIP
+#  XP rate VIP modifier
+#  Default : 1
+
+Rate.XP.Kill.VIP = 1
+Rate.XP.Quest.VIP = 1
+Rate.XP.Explore.VIP = 1
+Rate.Honor.Premium = 1
+Rate.Reputation.Gain.VIP = 1
+
+###################################################################################################

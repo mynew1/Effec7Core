@@ -179,6 +179,9 @@ enum Spells
     SPELL_SHOCKWAVE                     = 72149,
     SPELL_ENRAGE                        = 72143,
     SPELL_FRENZY                        = 28747,
+
+    // Hack Fix
+    SPELL_UNCONTROLLABLE_FRENZY         = 70923,
 };
 
 #define NECROTIC_PLAGUE_LK   RAID_MODE<uint32>(70337, 73912, 73913, 73914)
@@ -544,6 +547,8 @@ class boss_the_lich_king : public CreatureScript
 
                 me->setActive(true);
                 DoZoneInCombat();
+
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UNCONTROLLABLE_FRENZY);
 
                 events.SetPhase(PHASE_ONE);
                 events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 20000, 0, PHASE_ONE);
@@ -1151,7 +1156,10 @@ class npc_tirion_fordring_tft : public CreatureScript
             {
                 _events.Reset();
                 if (_instance->GetBossState(DATA_THE_LICH_KING) == DONE)
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    if (_instance->GetBossState(DATA_THE_LICH_KING) == IN_PROGRESS)
+                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    else
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
 
             void MovementInform(uint32 type, uint32 id) override

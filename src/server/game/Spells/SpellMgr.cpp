@@ -3741,6 +3741,11 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             // ENDOF ISLE OF CONQUEST SPELLS
             //
+            case 63623: // Avoidance Shadow Fiend
+            case 62137: // Avoidance Warlock Pet
+            case 65220: // Avoidance Hunter Pet
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE;
             default:
                 break;
         }

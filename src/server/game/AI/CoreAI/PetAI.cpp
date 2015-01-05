@@ -103,6 +103,9 @@ void PetAI::UpdateAI(uint32 diff)
             return;
         }
 
+        if (owner && !owner->IsInCombat())
+            owner->SetInCombatWith(me->GetVictim());
+
         // Check before attacking to prevent pets from leaving stay position
         if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY))
         {
@@ -330,6 +333,9 @@ void PetAI::AttackStart(Unit* target)
     // Check all pet states to decide if we can attack this target
     if (!CanAttack(target))
         return;
+
+    if (Unit* owner = me->GetOwner())
+        owner->SetInCombatWith(target);
 
     // Only chase if not commanded to stay or if stay but commanded to attack
     DoAttack(target, (!me->GetCharmInfo()->HasCommandState(COMMAND_STAY) || me->GetCharmInfo()->IsCommandAttack()));

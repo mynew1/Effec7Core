@@ -5206,9 +5206,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                     break;
                 switch (SummonProperties->Category)
                 {
-                    case SUMMON_CATEGORY_PET:
-                        if (m_caster->GetPetGUID())
-                            return SPELL_FAILED_ALREADY_HAVE_SUMMON;
                     // intentional missing break, check both GetPetGUID() and GetCharmGUID for SUMMON_CATEGORY_PET
                     case SUMMON_CATEGORY_PUPPET:
                         if (m_caster->GetCharmGUID())

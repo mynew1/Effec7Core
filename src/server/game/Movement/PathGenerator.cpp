@@ -572,6 +572,52 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
         _type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
     }
 
+    // Blade's Edge Arena Pillars MMAP Fix
+    float startEndDist = Dist3DSqr(GetStartPosition(), GetEndPosition());
+
+    if (_sourceUnit->GetMapId() == 562) //Blade edge arena (mapid)
+    {
+        //Start & End Position
+        if (startEndDist < 3000.0f && endPoint[1] >= 9.000000f && startPoint[1] >= 9.000000f && endPoint[2] <= 6233.953223f && endPoint[2] >= 6224.140430f && endPoint[0] >= 244.160000f && endPoint[0] <= 254.818940f)      // southeast pillar
+        {
+            Clear();
+            _type = PathType(PATHFIND_SHORT | PATHFIND_SHORT);
+            _pathPoints.resize(3);
+            _pathPoints[0] = GetStartPosition();
+            _pathPoints[1] = G3D::Vector3(6236.567836f, 258.049106f, 11.500018f);
+            _pathPoints[2] = G3D::Vector3(6230.818836f, 252.049106f, 11.500018f);
+            _pathPoints[3] = GetEndPosition();
+        }
+        else if (startEndDist < 3000.0f && startPoint[1] >= 9.000000f && endPoint[1] >= 9.000000f && startPoint[2] <= 6231.153223f && startPoint[2] >= 6226.440430f && startPoint[0] >= 247.060000f && startPoint[0] <= 252.418940f)       // southeast pillar
+        {
+            Clear();
+            _pathPoints.resize(3);
+            _pathPoints[0] = GetStartPosition();
+            _pathPoints[1] = G3D::Vector3(6235.567836f, 258.049106f, 11.500018f);
+            _pathPoints[2] = GetEndPosition();
+        }
+        else if (startEndDist < 3000.0f && startPoint[1] >= 9.000000f && startPoint[2] >= 6243.385660f && startPoint[2] <= 6254.611660f && startPoint[0] >= 268.757917f && startPoint[0] <= 279.558794f) // northwest pillar
+        {
+            Clear();
+            _pathPoints.resize(5);
+            _pathPoints[0] = GetStartPosition();
+            _pathPoints[1] = G3D::Vector3(6246.324219f, 271.570000f, 11.300000f);
+            _pathPoints[2] = G3D::Vector3(6242.942484f, 267.210030f, 11.280000f);
+            _pathPoints[3] = G3D::Vector3(6241.539484f, 265.441030f, 11.280000f);
+            _pathPoints[4] = GetEndPosition();
+        }
+        else if (startEndDist < 3000.0f && endPoint[1] >= 9.000000f && endPoint[2] >= 6243.385660f && endPoint[2] <= 6254.611660f && endPoint[0] >= 268.757917f && endPoint[0] <= 279.558794f) // northwest pillar
+        {
+            Clear();
+            _pathPoints.resize(5);
+            _pathPoints[0] = GetStartPosition();
+            _pathPoints[1] = G3D::Vector3(6241.539484f, 265.441030f, 11.280000f);
+            _pathPoints[2] = G3D::Vector3(6242.942484f, 267.210030f, 11.280000f);
+            _pathPoints[3] = G3D::Vector3(6246.324219f, 271.570000f, 11.300000f);
+            _pathPoints[4] = GetEndPosition();
+        }
+    }
+
     TC_LOG_DEBUG("maps", "++ PathGenerator::BuildPointPath path type %d size %d poly-size %d\n", _type, pointCount, _polyLength);
 }
 

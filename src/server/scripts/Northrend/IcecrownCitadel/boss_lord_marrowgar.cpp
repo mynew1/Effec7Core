@@ -137,6 +137,7 @@ class boss_lord_marrowgar : public CreatureScript
 
             void Reset() override
             {
+                SetImmuneToTaunt(false);
                 _Reset();
                 me->SetSpeed(MOVE_RUN, _baseSpeed, true);
                 me->RemoveAurasDueToSpell(SPELL_BONE_STORM);
@@ -225,6 +226,7 @@ class boss_lord_marrowgar : public CreatureScript
                             events.DelayEvents(3000, EVENT_GROUP_SPECIAL);
                             events.ScheduleEvent(EVENT_BONE_STORM_BEGIN, 3050);
                             events.ScheduleEvent(EVENT_WARN_BONE_STORM, urand(90000, 95000));
+                            SetImmuneToTaunt(true);
                             break;
                         case EVENT_BONE_STORM_BEGIN:
                             if (Aura* pStorm = me->GetAura(SPELL_BONE_STORM))
@@ -248,6 +250,7 @@ class boss_lord_marrowgar : public CreatureScript
                                 me->GetMotionMaster()->MovementExpired();
                             me->GetMotionMaster()->MoveChase(me->GetVictim());
                             me->SetSpeed(MOVE_RUN, _baseSpeed, true);
+                            SetImmuneToTaunt(false);
                             events.CancelEvent(EVENT_BONE_STORM_MOVE);
                             events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10000);
                             if (!IsHeroic())
@@ -331,6 +334,21 @@ class boss_lord_marrowgar : public CreatureScript
             }
 
         private:
+
+            void SetImmuneToTaunt(bool apply)
+            {
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, apply);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_THREAT, apply);
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, apply);
+
+                // Following might not be necessay, but just in case...  
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TOTAL_THREAT, apply);
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CRITICAL_THREAT, apply);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_THREAT_ALL, apply);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_MODIFY_THREAT_PERCENT, apply);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_REDIRECT_THREAT, apply);
+            }
+
             Position _coldflameLastPos;
             GuidVector _boneSpikeImmune;
             ObjectGuid _coldflameTarget;

@@ -2621,6 +2621,45 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                     if (AuraApplication* aurApp = m_spellAura->GetApplicationOfTarget(m_originalCaster->GetGUID()))
                         positive = aurApp->IsPositive();
 
+                    if (m_spellInfo->Id == 6358 && unit->GetTypeId() == TYPEID_PLAYER && m_originalCaster->GetOwner())
+                    {
+                        float mod = 1.0f;
+                        float durationadd = 0.0f;
+
+                        if (m_originalCaster->GetOwner()->HasAura(18754))
+                            durationadd += float(1.5*IN_MILLISECONDS * 0.22);
+                        else if (m_originalCaster->GetOwner()->HasAura(18755))
+                            durationadd += float(1.5*IN_MILLISECONDS * 0.44);
+                        else if (m_originalCaster->GetOwner()->HasAura(18756))
+                            durationadd += float(1.5*IN_MILLISECONDS * 0.66);
+
+                        if (durationadd)
+                        {
+                            switch (m_diminishLevel)
+                            {
+                                case DIMINISHING_LEVEL_1:
+                                    break;
+                                case DIMINISHING_LEVEL_2:
+                                    duration += 1000;
+                                    mod = 0.5f;
+                                    break;
+                                case DIMINISHING_LEVEL_3:
+                                    duration += 1000;
+                                    mod = 0.25f; 
+                                    break;
+                                case DIMINISHING_LEVEL_IMMUNE:
+                                {
+                                    m_spellAura->Remove();
+                                    return SPELL_MISS_IMMUNE; 
+                                }
+                                default:
+                                    break;
+                            }
+                            durationadd *= mod;
+                            duration = int32(durationadd);
+                        }
+                    }
+
                     duration = m_originalCaster->ModSpellDuration(aurSpellInfo, unit, duration, positive, effectMask);
 
                     // Haste modifies duration of channeled spells

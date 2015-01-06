@@ -219,19 +219,19 @@ class boss_blood_council_controller : public CreatureScript
                 if (Creature* keleseth = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_PRINCE_KELESETH_GUID)))
                 {
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, keleseth);
-                    DoZoneInCombat(keleseth);
+                    DoZoneInCombat(keleseth, 100.0f);
                 }
 
                 if (Creature* taldaram = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_PRINCE_TALDARAM_GUID)))
                 {
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, taldaram);
-                    DoZoneInCombat(taldaram);
+                    DoZoneInCombat(taldaram, 100.0f);
                 }
 
                 if (Creature* valanar = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_PRINCE_VALANAR_GUID)))
                 {
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, valanar);
-                    DoZoneInCombat(valanar);
+                    DoZoneInCombat(valanar, 100.0f);
                 }
 
                 events.ScheduleEvent(EVENT_INVOCATION_OF_BLOOD, 46500);
@@ -401,7 +401,7 @@ class boss_prince_keleseth_icc : public CreatureScript
             void EnterCombat(Unit* /*who*/) override
             {
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_PRINCES_CONTROL)))
-                    DoZoneInCombat(controller);
+                    DoZoneInCombat(controller, 100.0f);
 
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
                 events.ScheduleEvent(EVENT_SHADOW_RESONANCE, urand(10000, 15000));
@@ -455,6 +455,8 @@ class boss_prince_keleseth_icc : public CreatureScript
                 float angle = me->GetAngle(summon);
                 me->MovePositionToFirstCollision(pos, maxRange, angle);
                 summon->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+                summon->Relocate(pos);
+                summon->SendMovementFlagUpdate(); 
                 summon->ToTempSummon()->SetTempSummonType(TEMPSUMMON_CORPSE_DESPAWN);
             }
 
@@ -621,7 +623,7 @@ class boss_prince_taldaram_icc : public CreatureScript
             void EnterCombat(Unit* /*who*/) override
             {
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_PRINCES_CONTROL)))
-                    DoZoneInCombat(controller);
+                    DoZoneInCombat(controller, 100.0f);
 
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
                 events.ScheduleEvent(EVENT_GLITTERING_SPARKS, urand(12000, 15000));
@@ -845,7 +847,7 @@ class boss_prince_valanar_icc : public CreatureScript
             void EnterCombat(Unit* /*who*/) override
             {
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_PRINCES_CONTROL)))
-                    DoZoneInCombat(controller);
+                    DoZoneInCombat(controller, 100.0f);
 
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
                 events.ScheduleEvent(EVENT_KINETIC_BOMB, urand(18000, 24000));
@@ -1245,6 +1247,7 @@ class npc_kinetic_bomb : public CreatureScript
                 me->CastSpell(me, SPELL_KINETIC_BOMB_VISUAL, true);
                 me->SetReactState(REACT_PASSIVE);
                 me->GetPosition(_x, _y, _groundZ);
+                me->SetSpeed(MOVE_FLIGHT, IsHeroic() ? 0.3f : 0.15f, true);
                 me->DespawnOrUnsummon(60000);
                 _groundZ = me->GetMap()->GetHeight(me->GetPhaseMask(), _x, _y, _groundZ, true, 500.0f);
             }
@@ -1256,7 +1259,9 @@ class npc_kinetic_bomb : public CreatureScript
                 else if (action == ACTION_KINETIC_BOMB_JUMP)
                 {
                     if (!me->HasAura(SPELL_KINETIC_BOMB_KNOCKBACK))
+                    {
                         me->GetMotionMaster()->MoveCharge(_x, _y, me->GetPositionZ() + 100.0f, me->GetSpeed(MOVE_RUN), 0);
+                    }
                     _events.RescheduleEvent(EVENT_CONTINUE_FALLING, 3000);
                 }
             }
@@ -1304,7 +1309,6 @@ class npc_dark_nucleus : public CreatureScript
         {
             npc_dark_nucleusAI(Creature* creature) : ScriptedAI(creature)
             {
-                _lockedTarget = false;
                 _targetAuraCheck = 0;
             }
 
@@ -1340,6 +1344,7 @@ class npc_dark_nucleus : public CreatureScript
 
                 me->DeleteThreatList();
                 me->AddThreat(attacker, 500000000.0f);
+                AttackStart(attacker);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1368,7 +1373,6 @@ class npc_dark_nucleus : public CreatureScript
 
         private:
             uint32 _targetAuraCheck;
-            bool _lockedTarget;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -1626,7 +1630,7 @@ class spell_blood_council_shadow_prison : public SpellScriptLoader
 
             void HandleDummyTick(AuraEffect const* aurEff)
             {
-                if (GetTarget()->isMoving())
+                if (GetTarget()->isMoving() && GetTarget()->GetTypeId() == TYPEID_PLAYER)
                     GetTarget()->CastSpell(GetTarget(), SPELL_SHADOW_PRISON_DAMAGE, true, NULL, aurEff);
             }
 

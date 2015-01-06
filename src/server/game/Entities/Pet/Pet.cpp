@@ -1142,6 +1142,10 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     int meleeHaste = ((Player*)m_owner)->GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE);
                     ApplyCastTimePercentMod(meleeHaste, true);
 
+                    // Let's inherit full of master's hit rating
+                    m_modSpellHitChance = m_owner->m_modSpellHitChance;
+                    m_modMeleeHitChance = m_owner->m_modMeleeHitChance;
+
                     SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.7f * impurityMod));
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));

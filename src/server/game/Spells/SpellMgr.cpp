@@ -3163,6 +3163,24 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 29809: // Desecration Arm - 36 instead of 37 - typo? :/
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_7_YARDS);
                 break;
+            case 18754: // Improved succubus - problems with apply if target is pet 
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;  // it's affects duration of seduction, let's minimize affection   
+                spellInfo->Effects[EFFECT_0].BasePoints = -1.5 * IN_MILLISECONDS*0.22;   // reduce cast time of seduction by 22%
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
+                break;
+            case 18755:
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
+                spellInfo->Effects[EFFECT_0].BasePoints = -1.5*IN_MILLISECONDS*0.44;           //  reduce cast time of seduction by 44% 
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
+                break;
+            case 18756:
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
+                spellInfo->Effects[EFFECT_0].BasePoints = -1.5*IN_MILLISECONDS*0.66;          //  reduce cast time of seduction by 66% 
+                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
+                break;
             // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
             // To prevent aura staying on target after talent unlearned
             case 48420:

@@ -1320,6 +1320,11 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
                 if (itr == ToPet()->m_spells.end())
                     itr = ToPet()->m_spells.find(62762);                            //Wild Hunt rank 2
 
+                if (owner->HasAura(34453)) // Animal Handler rank 1
+                    mod *= 1.05f;
+                if (owner->HasAura(34454)) // Animal Handler rank 2
+                    mod *= 1.1f;
+
                 if (itr != ToPet()->m_spells.end())                                 // If pet has Wild Hunt
                 {
                     SpellInfo const* sProto = sSpellMgr->EnsureSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value

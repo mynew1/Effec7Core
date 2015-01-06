@@ -713,6 +713,21 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     // now let next effect cast spell at each target.
                     return;
                 }
+                case SPELLFAMILY_WARRIOR:
+                    if (Aura * aura = m_caster->GetAura(46916))
+                        if (aura->GetCharges())
+                        {
+                            m_caster->ToPlayer()->RestoreSpellMods(this, 46916);
+                            aura->DropCharge();
+                        }
+                    break;
+                    // Item - Warrior T10 Melee 4P
+                    if (Aura * aura = m_caster->GetAura(52437))
+                        if (aura->GetCharges())
+                        {
+                            m_caster->ToPlayer()->RestoreSpellMods(this, 52437);
+                        }
+                    break;
             }
             break;
         default:

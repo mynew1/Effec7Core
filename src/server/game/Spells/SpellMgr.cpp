@@ -2961,6 +2961,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 53096: // Quetz'lun's Judgment
                 spellInfo->MaxAffectedTargets = 1;
                 break;
+            case 24259: // Spell Lock Silence
+                spellInfo->Speed = 80;
+                break;
             case 42436: // Drink! (Brewfest)
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
                 break;

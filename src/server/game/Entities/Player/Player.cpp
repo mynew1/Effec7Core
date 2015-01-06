@@ -1618,6 +1618,14 @@ void Player::Update(uint32 p_time)
     if (now > m_Last_tick + 1)
         UpdateSoulboundTradeItems();
 
+    // Fix Sum of Enrage and trigger_spell Wrecking Crew
+    if (HasAura(14204) && HasAura(57522))
+        ToPlayer()->RemoveAura(57522);
+
+    // Remove mount when used Dispersion (ShadowFrom + Dispersion Mount Exploit)
+    if (HasAura(47585) && HasAuraType(SPELL_AURA_MOUNTED))
+        ToPlayer()->RemoveAurasByType(SPELL_AURA_MOUNTED);
+
     // If mute expired, remove it from the DB
     if (GetSession()->m_muteTime && GetSession()->m_muteTime < now)
     {

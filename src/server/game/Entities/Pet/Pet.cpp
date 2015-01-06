@@ -636,6 +636,23 @@ void Pet::Update(uint32 diff)
         default:
             break;
     }
+
+    // Custom Code
+    if (GetMapId() == 631)
+    {
+        if (GetOwner())
+        {
+            if (GetOwner()->HasAura(73828))
+                AddAura(73828, this);
+            else if (GetOwner()->HasAura(73822))
+                AddAura(73822, this);
+        }
+    }
+    else if (HasAura(73828))
+        RemoveAura(73828);
+    else if (HasAura(73822))
+        RemoveAura(73822);
+
     Creature::Update(diff);
 }
 

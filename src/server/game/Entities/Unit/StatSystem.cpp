@@ -686,8 +686,8 @@ float Player::GetMissPercentageFromDefence() const
 
     float diminishing = 0.0f, nondiminishing = 0.0f;
     // Modify value from defense skill (only bonus from defense rating diminishes)
-    nondiminishing += (GetSkillValue(SKILL_DEFENSE) - GetMaxSkillValueForLevel()) * 0.04f;
-    diminishing += (int32(GetRatingBonusValue(CR_DEFENSE_SKILL))) * 0.04f;
+    nondiminishing += (GetSkillValue(SKILL_DEFENSE) - GetMaxSkillValueForLevel()) * 0.05f;
+    diminishing += (int32(GetRatingBonusValue(CR_DEFENSE_SKILL))) * 0.05f;
 
     // apply diminishing formula to diminishing miss chance
     uint32 pclass = getClass()-1;
@@ -720,8 +720,8 @@ void Player::UpdateParryPercentage()
         // Parry from rating
         float diminishing = GetRatingBonusValue(CR_PARRY);
         // Modify value from defense skill (only bonus from defense rating diminishes)
-        nondiminishing += (GetSkillValue(SKILL_DEFENSE) - GetMaxSkillValueForLevel()) * 0.04f;
-        diminishing += (int32(GetRatingBonusValue(CR_DEFENSE_SKILL))) * 0.04f;
+        nondiminishing += (GetSkillValue(SKILL_DEFENSE) - GetMaxSkillValueForLevel()) * 0.05f;
+        diminishing += (int32(GetRatingBonusValue(CR_DEFENSE_SKILL))) * 0.05f;
         // Parry from SPELL_AURA_MOD_PARRY_PERCENT aura
         nondiminishing += GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT);
         // apply diminishing formula to diminishing parry chance
@@ -755,8 +755,8 @@ void Player::UpdateDodgePercentage()
     float diminishing = 0.0f, nondiminishing = 0.0f;
     GetDodgeFromAgility(diminishing, nondiminishing);
     // Modify value from defense skill (only bonus from defense rating diminishes)
-    nondiminishing += (GetSkillValue(SKILL_DEFENSE) - GetMaxSkillValueForLevel()) * 0.04f;
-    diminishing += (int32(GetRatingBonusValue(CR_DEFENSE_SKILL))) * 0.04f;
+    nondiminishing += (GetSkillValue(SKILL_DEFENSE) - GetMaxSkillValueForLevel()) * 0.05f;
+    diminishing += (int32(GetRatingBonusValue(CR_DEFENSE_SKILL))) * 0.05f;
     // Dodge from SPELL_AURA_MOD_DODGE_PERCENT aura
     nondiminishing += GetTotalAuraModifier(SPELL_AURA_MOD_DODGE_PERCENT);
     // Dodge from rating

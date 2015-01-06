@@ -3288,12 +3288,32 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
         }
         case SPELLFAMILY_DEATHKNIGHT:
         {
+            Unit* pPet = NULL;
+            for (Unit::ControlList::const_iterator itr = m_caster->m_Controlled.begin(); itr != m_caster->m_Controlled.end(); ++itr) //Find Rune Weapon
+                if ((*itr)->GetEntry() == 27893)
+                {
+                    pPet = (*itr);
+                    break;
+                }
+
             // Plague Strike
             if (m_spellInfo->SpellFamilyFlags[0] & 0x1)
             {
                 // Glyph of Plague Strike
                 if (AuraEffect const* aurEff = m_caster->GetAuraEffect(58657, EFFECT_0))
                     AddPct(totalDamagePercentMod, aurEff->GetAmount());
+                // double disease when dancing runic weapon active
+                if (pPet && m_caster->GetVictim())
+                {
+                    pPet->CastSpell(m_caster->GetVictim(), m_spellInfo->Effects[2].TriggerSpell, true);
+                    Aura *aur = m_caster->GetVictim()->GetAura(m_spellInfo->Effects[2].TriggerSpell, pPet->GetGUID());
+
+                    if (AuraEffect const* epidemic = m_caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, 234, EFFECT_0))
+                    {
+                        aur->SetMaxDuration(epidemic->GetAmount() + aur->GetMaxDuration());
+                        aur->SetDuration(aur->GetMaxDuration());
+                    }
+                }
                 break;
             }
             // Blood Strike
@@ -3303,7 +3323,10 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 // Death Knight T8 Melee 4P Bonus
                 if (AuraEffect const* aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
                     AddPct(bonusPct, aurEff->GetAmount());
-                AddPct(totalDamagePercentMod, bonusPct);
+                if (pPet)
+                    AddPct(totalDamagePercentMod, m_spellInfo->Effects[EFFECT_2].CalcValue() * (unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) + unitTarget->GetDiseasesByCaster(pPet->GetGUID())) / 2.0f);
+                else
+                    AddPct(totalDamagePercentMod, bonusPct);
 
                 // Glyph of Blood Strike
                 if (m_caster->GetAuraEffect(59332, EFFECT_0))
@@ -3316,8 +3339,12 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             {
                 // Glyph of Death Strike
                 if (AuraEffect const* aurEff = m_caster->GetAuraEffect(59336, EFFECT_0))
-                    if (uint32 runic = std::min<uint32>(m_caster->GetPower(POWER_RUNIC_POWER), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue()))
-                        AddPct(totalDamagePercentMod, runic);
+                    if (uint32 runic = m_caster->GetPower(POWER_RUNIC_POWER) / 10)
+                    {
+                        if (runic > 25)
+                            runic = 25;
+                        totalDamagePercentMod *= ((runic + 100.0f) / 100.0f);
+                    }
                 break;
             }
             // Obliterate (12.5% more damage per disease)
@@ -3334,13 +3361,20 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 // Death Knight T8 Melee 4P Bonus
                 if (AuraEffect const* aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
                     AddPct(bonusPct, aurEff->GetAmount());
-                AddPct(totalDamagePercentMod, bonusPct);
+
+                if (pPet)
+                    AddPct(totalDamagePercentMod, (m_spellInfo->Effects[EFFECT_2].CalcValue() * (unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), consumeDiseases) + unitTarget->GetDiseasesByCaster(pPet->GetGUID(), consumeDiseases)) / 2.0f));
+                else
+                    AddPct(totalDamagePercentMod, bonusPct);
                 break;
             }
             // Blood-Caked Strike - Blood-Caked Blade
             if (m_spellInfo->SpellIconID == 1736)
             {
-                AddPct(totalDamagePercentMod, unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) * 50.0f);
+                if (pPet)
+                    AddPct(totalDamagePercentMod, (unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) + unitTarget->GetDiseasesByCaster(pPet->GetGUID())) * 12.5f);
+                else
+                    AddPct(totalDamagePercentMod, unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) * 12.5f);
                 break;
             }
             // Heart Strike
@@ -3351,7 +3385,10 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 if (AuraEffect const* aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
                     AddPct(bonusPct, aurEff->GetAmount());
 
-                AddPct(totalDamagePercentMod, bonusPct);
+                if (pPet)
+                    AddPct(totalDamagePercentMod, (m_spellInfo->Effects[EFFECT_2].CalcValue() * (unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) + unitTarget->GetDiseasesByCaster(pPet->GetGUID())) / 2.0f));
+                else
+                    AddPct(totalDamagePercentMod, bonusPct);
                 break;
             }
             break;

@@ -3254,12 +3254,12 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 50526: // Wandering Plague (DK)
                 spellInfo->AttributesEx4 |= SPELL_ATTR4_FIXED_DAMAGE;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
             case 57994: // Wind Shear - improper data for EFFECT_1 in 3.3.5 DBC, but is correct in 4.x
                 spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_MODIFY_THREAT_PERCENT;
                 spellInfo->Effects[EFFECT_1].BasePoints = -6; // -5%
                 break;
-            case 50526: // Wandering Plague
             case 63675: // Improved Devouring Plague
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;

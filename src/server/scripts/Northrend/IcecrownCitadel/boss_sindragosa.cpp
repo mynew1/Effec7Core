@@ -111,6 +111,7 @@ enum Events
     EVENT_THIRD_PHASE_CHECK         = 22,
     EVENT_AIR_MOVEMENT_FAR          = 23,
     EVENT_LAND_GROUND               = 24,
+    EVENT_CHECK_PLAYERS             = 25,
 
     // Spinestalker
     EVENT_BELLOWING_ROAR            = 13,
@@ -246,6 +247,7 @@ class boss_sindragosa : public CreatureScript
                 events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, urand(9000, 14000), EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_ICY_GRIP, 33500, EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_AIR_PHASE, 50000);
+                events.ScheduleEvent(EVENT_CHECK_PLAYERS, 5000);
                 Initialize();
 
                 if (!_summoned)
@@ -279,6 +281,13 @@ class boss_sindragosa : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UNCONTROLLABLE_FRENZY);
                 DoCast(me, SPELL_PERMAEATING_CHILL);
                 Talk(SAY_AGGRO);
+            }
+
+            bool CanAIAttack(Unit const* target) const
+            {
+                if (target->GetPositionZ() >= 211.0f && !me->IsWithinLOS(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ()))
+                    return false;
+                return true;
             }
 
             void JustReachedHome() override
@@ -346,7 +355,11 @@ class boss_sindragosa : public CreatureScript
                         me->SetSpeed(MOVE_FLIGHT, 2.5f);
 
                         // Sindragosa enters combat as soon as she lands
-                        DoZoneInCombat();
+                        DoZoneInCombat(me, 100.0f);
+
+                        // Sindragosa should be in combat here, otherwise EnterEvadeMode and despawn
+                        if (!me->IsInCombat())
+                            EnterEvadeMode();
                         break;
                     case POINT_TAKEOFF:
                         events.ScheduleEvent(EVENT_AIR_MOVEMENT, 1);
@@ -420,6 +433,25 @@ class boss_sindragosa : public CreatureScript
 
             }
 
+            void CheckPlayerPositions()
+            {
+                Map* map = me->GetMap();
+                
+                if (map && map->IsDungeon())
+                {
+                    Map::PlayerList const &PlayerList = map->GetPlayers();
+
+                    if (PlayerList.isEmpty())
+                        return;
+
+                    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                        if (i->GetSource())
+                            if (i->GetSource()->IsAlive())
+                                if (i->GetSource()->GetPositionZ() < 195.0f && i->GetSource()->GetDistance2d(4379.1f, 2485.4f) < 100.0f)
+                                    i->GetSource()->TeleportTo(631, 4419.190f, 2484.570f, 205.0f, 3.141593f);
+                }
+            }
+
             void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim() || !CheckInRoom())
@@ -459,6 +491,8 @@ class boss_sindragosa : public CreatureScript
                         case EVENT_ICY_GRIP:
                             DoCast(me, SPELL_ICY_GRIP);
                             events.ScheduleEvent(EVENT_BLISTERING_COLD, 1000, EVENT_GROUP_LAND_PHASE);
+                            if (_isThirdPhase) // Need to reschedule in phase three, since it cannot be done via movement any longer
+                                events.RescheduleEvent(EVENT_ICY_GRIP, 40000);
                             break;
                         case EVENT_BLISTERING_COLD:
                             Talk(EMOTE_WARN_BLISTERING_COLD);
@@ -538,6 +572,10 @@ class boss_sindragosa : public CreatureScript
                                 events.ScheduleEvent(EVENT_THIRD_PHASE_CHECK, 5000);
                             break;
                         }
+                        case EVENT_CHECK_PLAYERS:
+                            CheckPlayerPositions();
+                            events.ScheduleEvent(EVENT_CHECK_PLAYERS, 3000);
+                            break;
                         default:
                             break;
                     }
@@ -1121,13 +1159,69 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
 
 class UnchainedMagicTargetSelector
 {
+    enum CriticalSpells
+    {
+        // Paladin spells that identify a specc
+        SPELL_PALADIN_DIVINE_STORM            = 53385,
+        SPELL_PALADIN_HAMMER_OF_THE_RIGHTEOUS = 53595,
+        // Shaman Spell that identify an enhancer
+        SPELL_SHAMAN_SHAMANISTIC_RAGE         = 30823,
+        // Druid spell that identifies a feral
+        SPELL_DRUID_BERSERK                   = 50334,
+    };
+
     public:
         UnchainedMagicTargetSelector() { }
 
         bool operator()(WorldObject* object) const
         {
             if (Unit* unit = object->ToUnit())
-                return unit->getPowerType() != POWER_MANA;
+            {
+                if (Player* player = unit->ToPlayer())
+                {
+                    // Remove classes that don't have mana cannot be caster or healer (atm.)
+                    if (player->getPowerType() != POWER_MANA)
+                        return true;
+                    else
+                    {
+                        switch (player->getClass())
+                        {
+                            case CLASS_HUNTER:
+                                return true; // Remove hunters, have mana, but no caster.
+                            case CLASS_PALADIN: // Only holy paladins should be affected.
+                            {
+                                // Divine Storm: Basic retribution paladin spell
+                                // Hammer of the Righteous: Basic protection paladin spell
+                                // If it's neither a ret nor a prot, it must be a holy
+                                if (!player->HasActiveSpell(SPELL_PALADIN_DIVINE_STORM) && !player->HasActiveSpell(SPELL_PALADIN_HAMMER_OF_THE_RIGHTEOUS))
+                                    return false;
+                                else
+                                    return true;
+                            }
+                            case CLASS_SHAMAN: // Enhancer should not be affected.
+                            {
+                                // Shamanistic Rage: Basic enhancer shaman spell
+                                // If it's not an enhancer, it has to be an elemental or restoration shaman - caster/healer ok
+                                if (!player->HasActiveSpell(SPELL_SHAMAN_SHAMANISTIC_RAGE))
+                                    return false;
+                                else
+                                    return true;
+                            }
+                            case CLASS_DRUID: // Feral druids should be excluded, disregarding their current state.
+                            {
+                                // Berserk: Basic feral druid spell
+                                // If it's not a feral, it's a moonkin or tree - caster/healer ok
+                                if (!player->HasActiveSpell(SPELL_DRUID_BERSERK))
+                                    return false;
+                                else
+                                    return true;
+                            }
+                            default:
+                                return false;
+                        }
+                    }
+                }
+            }
             return true;
         }
 };

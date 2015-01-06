@@ -2981,6 +2981,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 52212: // Death Knight: Death and Decay trigger spell
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
             case 30657: // Quake
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 30571;

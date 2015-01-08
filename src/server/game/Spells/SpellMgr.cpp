@@ -3378,9 +3378,6 @@ void SpellMgr::LoadSpellInfoCorrections()
                 /// @todo: remove this when basepoints of all Ride Vehicle auras are calculated correctly
                 spellInfo->Effects[EFFECT_0].BasePoints = 1;
                 break;
-            case 50452: // Bloodworm Summon
-                spellInfo->Effects[EFFECT_0].DieSides = 3;
-                break;
             case 59630: // Black Magic
                 spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;

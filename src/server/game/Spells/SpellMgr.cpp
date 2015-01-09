@@ -3340,6 +3340,10 @@ void SpellMgr::LoadSpellInfoCorrections()
                         // this needs research on modifier applying rules, does not seem to be in Attributes fields
                 spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x00000040, 0x00000000, 0x00000000);
                 break;
+            case 5171: // TW - Slice and Dice (Rank 1)
+            case 6774: // TW - Slice and Dice (Rank 2)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+                break;
             case 64949: // Idol of the Flourishing Life
                 spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x00000000, 0x02000000, 0x00000000);
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;

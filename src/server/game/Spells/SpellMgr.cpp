@@ -3340,6 +3340,13 @@ void SpellMgr::LoadSpellInfoCorrections()
                         // this needs research on modifier applying rules, does not seem to be in Attributes fields
                 spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(0x00000040, 0x00000000, 0x00000000);
                 break;
+            case 44461: // Living bomb
+            case 55361:
+            case 55362:
+                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+                break;
             case 5171: // TW - Slice and Dice (Rank 1)
             case 6774: // TW - Slice and Dice (Rank 2)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;

@@ -112,6 +112,7 @@ enum Events
     EVENT_AIR_MOVEMENT_FAR          = 23,
     EVENT_LAND_GROUND               = 24,
     EVENT_CHECK_PLAYERS             = 25,
+    EVENT_TRIGGER_AXPHYXIATION      = 26,
 
     // Spinestalker
     EVENT_BELLOWING_ROAR            = 13,
@@ -138,6 +139,7 @@ enum FrostwingData
     DATA_WHELP_MARKER           = 2,
     DATA_LINKED_GAMEOBJECT      = 3,
     DATA_TRAPPED_PLAYER         = 4,
+    DATA_AIR_PHASE              = 5,
 };
 
 enum MovementPoints
@@ -225,6 +227,10 @@ class boss_sindragosa : public CreatureScript
         {
             boss_sindragosaAI(Creature* creature) : BossAI(creature, DATA_SINDRAGOSA), _summoned(false)
             {
+                me->ApplySpellImmune(0, IMMUNITY_ID, 70127, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 72528, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 72529, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 72530, true);
                 Initialize();
             }
 
@@ -333,9 +339,15 @@ class boss_sindragosa : public CreatureScript
 
             uint32 GetData(uint32 type) const override
             {
-                if (type == DATA_MYSTIC_BUFFET_STACK)
-                    return _mysticBuffetStack;
-                return 0xFFFFFFFF;
+                switch (type)
+                {
+                    case DATA_MYSTIC_BUFFET_STACK:
+                        return _mysticBuffetStack;
+                    case DATA_AIR_PHASE:
+                        return _isInAirPhase ? 1 : 0;
+                    default:
+                        return 0xFFFFFFFF;
+                }
             }
 
             void MovementInform(uint32 type, uint32 point) override
@@ -375,7 +387,7 @@ class boss_sindragosa : public CreatureScript
                         events.ScheduleEvent(EVENT_LAND, 30000);
                         break;
                     case POINT_LAND:
-                        events.ScheduleEvent(EVENT_LAND_GROUND, 1);
+                        events.ScheduleEvent(EVENT_LAND_GROUND, 5 * IN_MILLISECONDS);
                         break;
                     case POINT_LAND_GROUND:
                     {
@@ -385,10 +397,8 @@ class boss_sindragosa : public CreatureScript
                         me->SetReactState(REACT_DEFENSIVE);
                         if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
                             me->GetMotionMaster()->MovementExpired();
+                        events.ScheduleEvent(EVENT_TRIGGER_AXPHYXIATION, 1);
                         _isInAirPhase = false;
-                        // trigger Asphyxiation
-                        EntryCheckPredicate pred(NPC_ICE_TOMB);
-                        summons.DoAction(ACTION_TRIGGER_ASPHYXIATION, pred);
                         break;
                     }
                     default:
@@ -427,7 +437,7 @@ class boss_sindragosa : public CreatureScript
             void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
                 if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(70127, me))
-                    if (spellId == spell->Id)
+                    if (spellId == spell->Id && target->GetTypeId() == TYPEID_PLAYER)
                         if (Aura const* mysticBuffet = target->GetAura(spell->Id))
                             _mysticBuffetStack = std::max<uint8>(_mysticBuffetStack, mysticBuffet->GetStackAmount());
 
@@ -458,6 +468,8 @@ class boss_sindragosa : public CreatureScript
                     return;
 
                 events.Update(diff);
+
+                EntryCheckPredicate pred(NPC_ICE_TOMB);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
@@ -530,6 +542,7 @@ class boss_sindragosa : public CreatureScript
                             {
                                 Talk(EMOTE_WARN_FROZEN_ORB, target);
                                 DoCast(target, SPELL_ICE_TOMB_DUMMY, true);
+                                events.ScheduleEvent(EVENT_TRIGGER_AXPHYXIATION, 25000);
                                 DoCast(target, SPELL_FROST_BEACON, true);
                             }
                             events.ScheduleEvent(EVENT_ICE_TOMB, urand(16000, 23000));
@@ -576,6 +589,10 @@ class boss_sindragosa : public CreatureScript
                             CheckPlayerPositions();
                             events.ScheduleEvent(EVENT_CHECK_PLAYERS, 3000);
                             break;
+                        case EVENT_TRIGGER_AXPHYXIATION:
+                            summons.DoAction(ACTION_TRIGGER_ASPHYXIATION, pred);
+                            events.CancelEvent(EVENT_TRIGGER_AXPHYXIATION);
+                            break;
                         default:
                             break;
                     }
@@ -606,6 +623,7 @@ class npc_ice_tomb : public CreatureScript
         {
             npc_ice_tombAI(Creature* creature) : ScriptedAI(creature)
             {
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 _existenceCheckTimer = 0;
                 SetCombatMovement(false);
             }
@@ -621,6 +639,14 @@ class npc_ice_tomb : public CreatureScript
                 {
                     _trappedPlayerGUID = guid;
                     _existenceCheckTimer = 1000;
+
+                    _asphyxiationTriggered = false;
+                    //  Intentional initialization
+                    _asphyxiationTimer = 20000;
+
+                    if (InstanceScript* instance = me->GetInstanceScript())
+                        if (Creature* sindragosa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SINDRAGOSA)))
+                            _asphyxiationTimer = sindragosa->AI()->GetData(DATA_AIR_PHASE) ? 30000 : 20000;
                 }
             }
 
@@ -667,6 +693,8 @@ class npc_ice_tomb : public CreatureScript
         private:
             ObjectGuid _trappedPlayerGUID;
             uint32 _existenceCheckTimer;
+            uint32 _asphyxiationTimer;
+            bool _asphyxiationTriggered;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -1402,6 +1430,7 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
                     if (GameObject* go = summon->SummonGameObject(GO_ICE_BLOCK, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0))
                     {
                         go->SetSpellId(SPELL_ICE_TOMB_DAMAGE);
+                        go->CastSpell(GetHitUnit(), SPELL_ICE_TOMB_DAMAGE, true);
                         summon->AddGameObject(go);
                     }
                 }
@@ -1459,6 +1488,12 @@ class spell_sindragosa_icy_grip : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
+
+                // Hack - Prevent beaconed players from being gripped
+                if (Unit* target = GetHitUnit())
+                    if (target->HasAura(SPELL_FROST_BEACON))
+                        return;
+
                 GetHitUnit()->CastSpell(GetCaster(), SPELL_ICY_GRIP_JUMP, true);
             }
 

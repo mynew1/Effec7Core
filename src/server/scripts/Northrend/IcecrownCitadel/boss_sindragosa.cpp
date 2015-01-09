@@ -203,17 +203,17 @@ class FrostBombExplosion : public BasicEvent
 class FrostBeaconSelector
 {
     public:
-        FrostBeaconSelector(Unit* source) : _source(source) { }
+        FrostBeaconSelector(WorldObject* source) : _source(source) { }
 
-        bool operator()(Unit* target) const
+        bool operator()(WorldObject* target) const
         {
-            return target->GetTypeId() == TYPEID_PLAYER &&
-                target != _source->GetVictim() &&
-                !target->HasAura(SPELL_ICE_TOMB_UNTARGETABLE);
+            if (Unit* unit = target->ToUnit())
+                return unit->GetTypeId() == TYPEID_PLAYER && unit != _source->ToCreature()->GetVictim() && !unit->HasAura(SPELL_ICE_TOMB_UNTARGETABLE);
+            return false;
         }
 
     private:
-        Unit* _source;
+        WorldObject* _source;
 };
 
 class boss_sindragosa : public CreatureScript
@@ -1387,6 +1387,12 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
                 return true;
             }
 
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (Creature* caster = GetCaster()->ToCreature())
+                    targets.remove_if(FrostBeaconSelector(caster));
+            }
+
             void SummonTomb()
             {
                 Position pos = GetHitUnit()->GetPosition();
@@ -1403,6 +1409,7 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
 
             void Register() override
             {
+                SpellObjectAreaTargetSelectFn(spell_sindragosa_ice_tomb_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 AfterHit += SpellHitFn(spell_sindragosa_ice_tomb_SpellScript::SummonTomb);
             }
         };

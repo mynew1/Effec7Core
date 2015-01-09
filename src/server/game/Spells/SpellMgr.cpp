@@ -3822,6 +3822,11 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 74384:  // Intimidating Roar - Ruby Sanctum
                 spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_40_YARDS);
                 break;
+            case 34490: // Silencing Shot
+            case 19503: // Scatter Shot
+            case 1543: // Flare
+                spellInfo->Speed = 0;
+                break;
             case 63623: // Avoidance Shadow Fiend
             case 62137: // Avoidance Warlock Pet
             case 65220: // Avoidance Hunter Pet

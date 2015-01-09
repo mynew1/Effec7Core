@@ -2431,6 +2431,10 @@ class spell_the_lich_king_defile : public SpellScriptLoader
 
             void ChangeDamageAndGrow()
             {
+                // Soul Harvest or Val'kyr grab.
+                if (GetHitUnit()->GetVehicleBase())
+                    return;
+
                 SetHitDamage(int32(GetHitDamage() * GetCaster()->GetObjectScale()));
                 // HACK: target player should cast this spell on defile
                 // however with current aura handling auras cast by different units

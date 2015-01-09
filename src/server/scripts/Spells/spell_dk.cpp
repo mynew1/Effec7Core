@@ -1689,6 +1689,56 @@ public:
     }
 };
 
+enum PetAvoidance
+{
+    SPELL_NIGHT_OF_THE_DEAD      = 55620,
+    ENTRY_ARMY_OF_THE_DEAD_GHOUL = 24207
+};
+
+class spell_dk_avoidance_passive : public SpellScriptLoader
+{
+    public:
+        spell_dk_avoidance_passive() : SpellScriptLoader("spell_dk_avoidance_passive") {}
+
+        class spell_dk_avoidance_passive_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_avoidance_passive_AuraScript);
+
+            bool Load() override
+            {
+                if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
+                    return false;
+                return true;
+            }
+
+            void CalculateAvoidanceAmount(AuraEffect const* /* aurEff */, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                if (Unit* pet = GetUnitOwner())
+                {
+                    if (Unit* owner = pet->GetOwner())
+                    {
+                        // Army of the dead ghoul
+                        if (pet->GetEntry() == ENTRY_ARMY_OF_THE_DEAD_GHOUL)
+                            amount = -90;
+                        // Night of the dead
+                        else if (Aura* aur = owner->GetAuraOfRankedSpell(SPELL_NIGHT_OF_THE_DEAD))
+                            amount = -aur->GetSpellInfo()->Effects[EFFECT_2].CalcValue();
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(TW_spell_dk_avoidance_passive_AuraScript::CalculateAvoidanceAmount, EFFECT_0, SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new TW_spell_dk_avoidance_passive_AuraScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_anti_magic_shell_raid();
@@ -1719,4 +1769,5 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_vampiric_blood();
     new spell_dk_will_of_the_necropolis();
     new spell_dk_death_grip_initial();
+    new spell_dk_avoidance_passive();
 }

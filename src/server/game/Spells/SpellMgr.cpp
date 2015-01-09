@@ -3563,6 +3563,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 69508: // Slime Spray
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
+                spellInfo->ChannelInterruptFlags = 0;
                 break;
             case 70530: // Volatile Ooze Beam Protection (Professor Putricide)
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA; // for an unknown reason this was SPELL_EFFECT_APPLY_AREA_AURA_RAID
@@ -3799,6 +3800,28 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             // ENDOF ISLE OF CONQUEST SPELLS
             //
+            case 49224: // Magic Suppression
+            case 49610:
+            case 49611:
+                spellInfo->ProcCharges = 0;
+                break;
+            case 11389: // Detect Undead
+                spellInfo->ManaPerSecond = 0;
+                break;
+            case 62997: // Mimiron - Plasma Blast
+            case 70498: // Lich King - Vile Spirits
+            case 73301: // Blood Prince Council - Shadow Prison Dummy
+                spellInfo->ChannelInterruptFlags = 0;
+                break;
+            case 70541: // Infest (10 normal)
+            case 73779: // Infest (25 normal)
+            case 73780: // Infest (10 heroic)
+            case 73781: // Infest (25 heroic)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                break;
+            case 74384:  // Intimidating Roar - Ruby Sanctum
+                spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_40_YARDS);
+                break;
             case 63623: // Avoidance Shadow Fiend
             case 62137: // Avoidance Warlock Pet
             case 65220: // Avoidance Hunter Pet

@@ -2407,7 +2407,7 @@ class ExactDistanceCheck
 
         bool operator()(WorldObject* unit)
         {
-            return _source->GetExactDist2d(unit) > _dist;
+            return _source->GetExactDist2d(unit) > _dist && !unit->ToUnit()->GetVehicleBase();
         }
 
     private:
@@ -2431,10 +2431,6 @@ class spell_the_lich_king_defile : public SpellScriptLoader
 
             void ChangeDamageAndGrow()
             {
-                // Soul Harvest or Val'kyr grab.
-                if (GetHitUnit()->GetVehicleBase())
-                    return;
-
                 SetHitDamage(int32(GetHitDamage() * GetCaster()->GetObjectScale()));
                 // HACK: target player should cast this spell on defile
                 // however with current aura handling auras cast by different units

@@ -1163,6 +1163,17 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         }
     }
 
+    if (GetOwner()->GetTypeId() == TYPEID_PLAYER)
+    {
+        Player* player = GetOwner()->ToPlayer();
+        if (IsHunterPet())
+            m_modMeleeHitChance = player->GetRatingBonusValue(CR_HIT_RANGED);
+        else if (IsPet() || IsSpiritWolf())
+        {
+            UpdateMeleeHaste(0.0f, player->GetBaseCombatRating(CR_HASTE_MELEE) * player->GetRatingMultiplier(CR_HASTE_MELEE));
+        }
+    }
+
     UpdateAllStats();
 
     SetFullHealth();

@@ -1729,13 +1729,13 @@ class spell_dk_avoidance_passive : public SpellScriptLoader
 
             void Register() override
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(TW_spell_dk_avoidance_passive_AuraScript::CalculateAvoidanceAmount, EFFECT_0, SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_avoidance_passive_AuraScript::CalculateAvoidanceAmount, EFFECT_0, SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE);
             }
         };
 
         AuraScript* GetAuraScript() const override
         {
-            return new TW_spell_dk_avoidance_passive_AuraScript();
+            return new spell_dk_avoidance_passive_AuraScript();
         }
 };
 

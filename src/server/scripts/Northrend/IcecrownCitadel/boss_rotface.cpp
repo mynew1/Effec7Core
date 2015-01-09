@@ -479,13 +479,14 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                // get 2 targets except 2 nearest
                 targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
 
+                // Select 5 nearest dummies, including the caster
                 // .resize() runs pop_back();
-                if (targets.size() > 4)
-                    targets.resize(4);
+                if (targets.size() > 5)
+                    targets.resize(5);
 
+                // Selects 2 farthest ones to cast a spell
                 while (targets.size() > 2)
                     targets.pop_front();
             }
@@ -881,6 +882,13 @@ class spell_rotface_slime_spray : public SpellScriptLoader
         {
             PrepareSpellScript(spell_rotface_slime_spray_SpellScript);
 
+            void ChangeOrientation()
+            {
+                Unit* caster = GetCaster();
+                // find stalker set caster  orientation to face it
+                if (Creature* target = caster->FindNearestCreature(NPC_OOZE_SPRAY_STALKER, 200.0f))
+                    caster->SetOrientation(caster->GetAngle(target));
+            }
             void HandleResidue()
             {
                 Player* target = GetHitPlayer();
@@ -909,6 +917,7 @@ class spell_rotface_slime_spray : public SpellScriptLoader
 
             void Register() override
             {
+                BeforeCast += SpellCastFn(spell_rotface_slime_spray_SpellScript::ChangeOrientation);
                 OnHit += SpellHitFn(spell_rotface_slime_spray_SpellScript::HandleResidue);
             }
         };

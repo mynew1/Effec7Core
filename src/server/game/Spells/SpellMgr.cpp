@@ -3305,6 +3305,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 49575: // Death Grip Pull Time
                 spellInfo->Effects[EFFECT_0].MiscValueB = 70;
                 break;
+            case 60106: // Lava Lash
+                spellInfo->Effects[EFFECT_1].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ENEMY);
+                break;
             case 53241: // Marked for Death (Rank 1)
             case 53243: // Marked for Death (Rank 2)
             case 53244: // Marked for Death (Rank 3)

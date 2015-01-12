@@ -228,7 +228,9 @@ class boss_lord_marrowgar : public CreatureScript
                             events.DelayEvents(3000, EVENT_GROUP_SPECIAL);
                             events.ScheduleEvent(EVENT_BONE_STORM_BEGIN, 3050);
                             events.ScheduleEvent(EVENT_WARN_BONE_STORM, urand(90000, 95000));
-                            SetImmuneToTaunt(true);
+
+                            if (IsHeroic())
+                                SetImmuneToTaunt(true);
                             break;
                         case EVENT_BONE_STORM_BEGIN:
                             if (Aura* pStorm = me->GetAura(SPELL_BONE_STORM))
@@ -252,6 +254,7 @@ class boss_lord_marrowgar : public CreatureScript
                                 me->GetMotionMaster()->MovementExpired();
                             me->GetMotionMaster()->MoveChase(me->GetVictim());
                             me->SetSpeed(MOVE_RUN, _baseSpeed, true);
+                            if (IsHeroic())
                             SetImmuneToTaunt(false);
                             events.CancelEvent(EVENT_BONE_STORM_MOVE);
                             events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10000);

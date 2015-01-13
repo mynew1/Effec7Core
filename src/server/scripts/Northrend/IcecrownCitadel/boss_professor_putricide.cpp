@@ -109,6 +109,7 @@ enum Spells
 
     // Hack Fix
     SPELL_UNCONTROLLABLE_FRENZY = 70923,
+    SPELL_WINGS_OF_THE_DAMNED = 74352,
 
     // Unholy Infusion
     SPELL_UNHOLY_INFUSION_CREDIT            = 71518
@@ -323,6 +324,7 @@ class boss_professor_putricide : public CreatureScript
                         summon->ModifyAuraState(AURA_STATE_UNKNOWN22, true);
                         summon->CastSpell(summon, SPELL_GASEOUS_BLOAT_PROC, true);
                         summon->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                        summon->CastSpell(summon, SPELL_WINGS_OF_THE_DAMNED);
                         summon->SetReactState(REACT_PASSIVE);
                         break;
                     case NPC_VOLATILE_OOZE:

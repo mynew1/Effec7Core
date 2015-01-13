@@ -478,7 +478,7 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
                     if (target->GetQuestStatus(QUEST_RESIDUE_RENDEZVOUS_10) != QUEST_STATUS_INCOMPLETE)
                         return;
 
-                    target->CastSpell(target, SPELL_ORANGE_BLIGHT_RESIDUE, TRIGGERED_FULL_MASK);
+                    target->CastSpell(target, SPELL_ORANGE_BLIGHT_RESIDUE, true);
                 }
 
                 if (target->GetMap() && target->GetMap()->Is25ManRaid())

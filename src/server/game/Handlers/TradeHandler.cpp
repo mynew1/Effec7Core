@@ -32,6 +32,9 @@
 
 void WorldSession::SendTradeStatus(TradeStatusInfo const& info)
 {
+    if (_player->IsGameMaster()) // Don't allow GM's to Trade
+        return;
+
     WorldPacket data(SMSG_TRADE_STATUS, 13);
     data << uint32(info.Status);
 

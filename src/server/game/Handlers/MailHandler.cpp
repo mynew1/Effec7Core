@@ -49,6 +49,8 @@ bool WorldSession::CanOpenMailBox(ObjectGuid guid)
         if (!_player->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_MAILBOX))
             return false;
     }
+    else if (_player->IsGameMaster()) // No support alllowed
+        return false;
     else
         return false;
 

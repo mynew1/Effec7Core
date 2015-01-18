@@ -118,7 +118,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-                TeamInInstance = 0;
+                TeamInInstance = HORDE;
                 HeroicAttempts = MaxHeroicAttempts;
                 IsBonedEligible = true;
                 IsOozeDanceEligible = true;
@@ -178,7 +178,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     Map::PlayerList const &players = instance->GetPlayers();
                     if (!players.isEmpty())
                         if (Player* player = players.begin()->GetSource())
-                            TeamInInstance = player->GetTeam();
+                            TeamInInstance = HORDE;
                 }
 
                 switch (creature->GetEntry())

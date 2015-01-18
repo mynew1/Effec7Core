@@ -1,0 +1,12 @@
+DELETE FROM pool_quest WHERE entry=24579;
+DELETE FROM pool_quest WHERE entry=24580;
+DELETE FROM pool_quest WHERE entry=24581;
+DELETE FROM pool_quest WHERE entry=24582;
+DELETE FROM pool_quest WHERE entry=24583;
+DELETE FROM pool_quest WHERE entry=24584;
+DELETE FROM pool_quest WHERE entry=24585;
+DELETE FROM pool_quest WHERE entry=24586;
+DELETE FROM pool_quest WHERE entry=24587;
+DELETE FROM pool_quest WHERE entry=24588;
+DELETE FROM pool_quest WHERE entry=24589;
+DELETE FROM pool_quest WHERE entry=24590;

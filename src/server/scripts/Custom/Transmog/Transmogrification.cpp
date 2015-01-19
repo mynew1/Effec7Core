@@ -388,9 +388,9 @@ bool Transmogrification::CanTransmogrifyItemWithItem(Player* player, ItemTemplat
     if (source->InventoryType != target->InventoryType)
     {
         if (source->Class == ITEM_CLASS_WEAPON &&
-            (IsRangedWeapon(target->Class, target->SubClass) != IsRangedWeapon(source->Class, source->SubClass) ||
+            (IsRangedWeapon(target->Class, target->SubClass) != IsRangedWeapon(source->Class, source->SubClass)))/* ||
             source->InventoryType == INVTYPE_WEAPONMAINHAND ||
-            source->InventoryType == INVTYPE_WEAPONOFFHAND))
+            source->InventoryType == INVTYPE_WEAPONOFFHAND))*/
             return false;
         if (source->Class == ITEM_CLASS_ARMOR &&
             !((source->InventoryType == INVTYPE_CHEST && target->InventoryType == INVTYPE_ROBE) ||

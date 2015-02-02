@@ -14,8 +14,6 @@ MySQL - 5.5.41 : Database - char
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 CREATE DATABASE /*!32312 IF NOT EXISTS*/`char` /*!40100 DEFAULT CHARACTER SET latin1 */;
 
-USE `char`;
-
 /*Table structure for table `logy_gm` */
 
 DROP TABLE IF EXISTS `logy_gm`;

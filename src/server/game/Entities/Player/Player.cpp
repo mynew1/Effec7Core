@@ -4238,7 +4238,7 @@ void Player::RemoveSpellCategoryCooldown(uint32 cat, bool update /* = false */)
 
 void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
 {
-    // remove cooldowns on spells that have <= 10 min CD
+    // remove cooldowns on spells that have < 10 min CD
 
     SpellCooldowns::iterator itr, next;
     for (itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); itr = next)
@@ -4246,10 +4246,10 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
         next = itr;
         ++next;
         SpellInfo const* entry = sSpellMgr->GetSpellInfo(itr->first);
-        // check if spellentry is present and if the cooldown is less or equal to 10 min
+        // check if spellentry is present and if the cooldown is less than 10 min
         if (entry &&
-            entry->RecoveryTime <= 10 * MINUTE * IN_MILLISECONDS &&
-            entry->CategoryRecoveryTime <= 10 * MINUTE * IN_MILLISECONDS)
+            entry->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS &&
+            entry->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS)
         {
             // remove & notify
             RemoveSpellCooldown(itr->first, true);
@@ -22220,8 +22220,8 @@ void Player::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /*= 0*/
     SendDirectMessage(&data);
 
     uint32 cat = spellInfo->GetCategory();
-    uint32 catRec = spellInfo->CategoryRecoveryTime;
-    if (cat && catRec)
+
+    if (cat && spellInfo->CategoryRecoveryTime)
     {
         SpellCategoryStore::const_iterator ct = sSpellsByCategoryStore.find(cat);
         if (ct != sSpellsByCategoryStore.end())
@@ -22232,19 +22232,17 @@ void Player::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /*= 0*/
                 if (i->first == spellInfo->Id) // skip main spell, already handled above
                     continue;
 
-                if (SpellInfo const* spellInfo2 = sSpellMgr->GetSpellInfo(i->first))
-                {
-                    if (!spellInfo2->IsCooldownStartedOnEvent())
-                        continue;
+                SpellInfo const* spellInfo2 = sSpellMgr->GetSpellInfo(i->first);
+                if (!spellInfo2 || !spellInfo2->IsCooldownStartedOnEvent())
+                    continue;
 
-                    if (catSet.find(i->first) != catSet.end())
-                    {
-                        // Send activate cooldown timer (possible 0) at client side
-                        WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 8);
-                        data << uint32(i->first);
-                        data << uint64(GetGUID());
-                        SendDirectMessage(&data);
-                    }
+                if (catSet.find(i->first) != catSet.end())
+                {
+                    // Send activate cooldown timer (possible 0) at client side
+                    WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 8);
+                    data << uint32(i->first);
+                    data << uint64(GetGUID());
+                    SendDirectMessage(&data);
                 }
             }
         }

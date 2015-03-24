@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "InstanceScript.h"
+#include "Vehicle.h"
 #include "Player.h"
 #include "WorldPacket.h"
 #include "SpellScript.h"
@@ -63,28 +64,33 @@ class instance_ulduar : public InstanceMapScript
 
             // Creatures
             ObjectGuid LeviathanGUID;
-			ObjectGuid IgnisGUID;
-			ObjectGuid RazorscaleGUID;
-			ObjectGuid RazorscaleController;
-			ObjectGuid ExpeditionCommanderGUID;
-			ObjectGuid XT002GUID;
-			ObjectGuid XTToyPileGUIDs[4];
-			ObjectGuid AssemblyGUIDs[3];
-			ObjectGuid KologarnGUID;
-			ObjectGuid AuriayaGUID;
-			ObjectGuid MimironGUID;
-			ObjectGuid HodirGUID;
-			ObjectGuid ThorimGUID;
-			ObjectGuid FreyaGUID;
-			ObjectGuid ElderGUIDs[3];
-			ObjectGuid VezaxGUID;
-			ObjectGuid YoggSaronGUID;
-			ObjectGuid VoiceOfYoggSaronGUID;
-			ObjectGuid SaraGUID;
-			ObjectGuid BrainOfYoggSaronGUID;
-			ObjectGuid KeeperGUIDs[4];
-			ObjectGuid AlgalonGUID;
-			ObjectGuid BrannBronzebeardAlgGUID;
+            GuidVector LeviathanVehicleGUIDs;
+            ObjectGuid IgnisGUID;
+            ObjectGuid RazorscaleGUID;
+            ObjectGuid RazorscaleController;
+            ObjectGuid ExpeditionCommanderGUID;
+            ObjectGuid XT002GUID;
+            ObjectGuid XTToyPileGUIDs[4];
+            ObjectGuid AssemblyGUIDs[3];
+            ObjectGuid KologarnGUID;
+            ObjectGuid AuriayaGUID;
+            ObjectGuid HodirGUID;
+            ObjectGuid ThorimGUID;
+            ObjectGuid FreyaGUID;
+            ObjectGuid ElderGUIDs[3];
+            ObjectGuid FreyaAchieveTriggerGUID;
+            ObjectGuid MimironGUID;
+            ObjectGuid MimironVehicleGUIDs[3];
+            ObjectGuid MimironComputerGUID;
+            ObjectGuid MimironWorldTriggerGUID;
+            ObjectGuid VezaxGUID;
+            ObjectGuid YoggSaronGUID;
+            ObjectGuid VoiceOfYoggSaronGUID;
+            ObjectGuid SaraGUID;
+            ObjectGuid BrainOfYoggSaronGUID;
+            ObjectGuid KeeperGUIDs[4];
+            ObjectGuid AlgalonGUID;
+            ObjectGuid BrannBronzebeardAlgGUID;
 
             // GameObjects
 			ObjectGuid LeviathanGateGUID;
@@ -276,6 +282,11 @@ class instance_ulduar : public InstanceMapScript
                 {
                     case NPC_LEVIATHAN:
                         LeviathanGUID = creature->GetGUID();
+                        break;
+                    case NPC_SALVAGED_DEMOLISHER:
+                    case NPC_SALVAGED_SIEGE_ENGINE:
+                    case NPC_SALVAGED_CHOPPER:
+                        LeviathanVehicleGUIDs.push_back(creature->GetGUID());
                         break;
                     case NPC_IGNIS:
                         IgnisGUID = creature->GetGUID();
@@ -750,6 +761,24 @@ class instance_ulduar : public InstanceMapScript
                 switch (type)
                 {
                     case BOSS_LEVIATHAN:
+                        if (state == DONE)
+                        {
+                            // Eject all players from vehicles and make them untargetable.
+                            // They will be despawned after a while
+                            for (auto const& vehicleGuid : LeviathanVehicleGUIDs)
+                            {
+                                if (Creature* vehicleCreature = instance->GetCreature(vehicleGuid))
+                                {
+                                    if (Vehicle* vehicle = vehicleCreature->GetVehicleKit())
+                                    {
+                                        vehicle->RemoveAllPassengers();
+                                        vehicleCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                        vehicleCreature->DespawnOrUnsummon(5 * MINUTE * IN_MILLISECONDS);
+                                    }
+                                }
+                            }
+                        }
+                        break;
                     case BOSS_IGNIS:
                     case BOSS_RAZORSCALE:
                     case BOSS_XT002:
@@ -1272,6 +1301,34 @@ class instance_ulduar : public InstanceMapScript
                             break;
                     }
                 }
+            }
+
+            void UpdateDoorState(GameObject* door) override
+            {
+                // Leviathan doors are set to DOOR_TYPE_ROOM except the one it uses to enter the room
+                // which has to be set to DOOR_TYPE_PASSAGE
+                if (door->GetEntry() == GO_LEVIATHAN_DOOR && door->GetPositionX() > 400.f)
+                    door->SetGoState(GetBossState(BOSS_LEVIATHAN) == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
+                else
+                    InstanceScript::UpdateDoorState(door);
+            }
+
+            void AddDoor(GameObject* door, bool add) override
+            {
+                // Leviathan doors are South except the one it uses to enter the room
+                // which is North and should not be used for boundary checks in BossAI::CheckBoundary()
+                if (door->GetEntry() == GO_LEVIATHAN_DOOR && door->GetPositionX() > 400.f)
+                {
+                    if (add)
+                        GetBossInfo(BOSS_LEVIATHAN)->door[DOOR_TYPE_PASSAGE].insert(door->GetGUID());
+                    else
+                        GetBossInfo(BOSS_LEVIATHAN)->door[DOOR_TYPE_PASSAGE].erase(door->GetGUID());
+
+                    if (add)
+                        UpdateDoorState(door);
+                }
+                else
+                    InstanceScript::AddDoor(door, add);
             }
 
         private:

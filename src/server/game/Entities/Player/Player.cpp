@@ -8524,6 +8524,9 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
     {
         _Spell const& spellData = proto->Spells[i];
 
+		if (!item)
+			break;
+
         // no spell
         if (!spellData.SpellId)
             continue;
@@ -8545,12 +8548,19 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
         spell->m_glyphIndex = glyphIndex;                   // glyph index
         spell->prepare(&targets);
 
+		if (!spell->m_CastItem)
+			item = nullptr;
+
         ++count;
     }
 
     // Item enchantments spells cast at use
     for (uint8 e_slot = 0; e_slot < MAX_ENCHANTMENT_SLOT; ++e_slot)
     {
+		// item can be deleted in Spell::TakeCastItem
+		if (!item)
+			break;
+
         uint32 enchant_id = item->GetEnchantmentId(EnchantmentSlot(e_slot));
         SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
         if (!pEnchant)
@@ -8572,6 +8582,9 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
             spell->m_cast_count = cast_count;               // set count of casts
             spell->m_glyphIndex = glyphIndex;               // glyph index
             spell->prepare(&targets);
+
+			if (!spell->m_CastItem)
+				item = nullptr;
 
             ++count;
         }

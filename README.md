@@ -12,7 +12,7 @@
 
 Effec7Core is a *MMORPG* Framework based mostly in C++.
 
-It is derived from *TrinityCore*, and is upgrated to FUN content. 
+It is derived from *TrinityCore*, always updated and is upgrated to FUN content. 
 
 It is completely open source; community involvement is highly encouraged.
 
@@ -21,6 +21,21 @@ make pull requests to our [Github repository](https://github.com/Effec7/Effec7Co
 
 For further information on the TrinityCore project, please visit our project
 website at [TrinityCore.org](http://www.trinitycore.org).
+
+## Includes
++ Transmogrification System
++ Custom Implementations
++ Custom Spellfixes
++ Encounter Fixes
++ VIP SYSTEM
++ 1v1 Arena
++ Duel Reset
++ Blocked GM Unbind Trade
++ GM Logs to Database
++ Dynamic Teleporter
++ Proffesion Teleporter
+
+And much more! 
 
 ## Requirements
 

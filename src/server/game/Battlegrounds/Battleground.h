@@ -467,6 +467,9 @@ class Battleground
 
         virtual uint32 GetPrematureWinner();
 
+        std::set<uint64> m_ArenaReadyCheckMap;
+        void SendArenaReadyCheck() const;
+
         // because BattleGrounds with different types and same level range has different m_BracketId
         uint8 GetUniqueBracketId() const;
 

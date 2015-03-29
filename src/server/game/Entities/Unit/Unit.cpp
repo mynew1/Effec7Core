@@ -16415,9 +16415,13 @@ void Unit::ApplyResilience(Unit const* victim, float* crit, int32* damage, bool 
     {
         case CR_CRIT_TAKEN_MELEE:
             // Crit chance reduction works against nonpets
-            if (crit)
-                *crit -= target->GetMeleeCritChanceReduction();
-            if (source && damage)
+            if (source->getClass() == CLASS_WARRIOR) //Fix Warrior Damage
+            {
+                if (isCrit)
+                    *damage -= target->GetMeleeWarriorCritDamageReduction(*damage);
+                *damage -= target->GetMeleeWarriorDamageReduction(*damage);
+            }
+            else
             {
                 if (isCrit)
                     *damage -= target->GetMeleeCritDamageReduction(*damage);

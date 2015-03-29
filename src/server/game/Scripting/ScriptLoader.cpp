@@ -1424,6 +1424,7 @@ void AddSC_PWS_Transmogrification();
 void AddSC_CS_Transmogrification();
 void AddSC_Duel_Reset();
 void AddSC_npc_1v1arena();
+void AddSC_CD();
 #endif
 
 void AddCustomScripts()
@@ -1435,5 +1436,6 @@ void AddCustomScripts()
 	AddSC_CS_Transmogrification();
 	AddSC_Duel_Reset();
     AddSC_npc_1v1arena();
+    AddSC_CD();
 #endif
 }

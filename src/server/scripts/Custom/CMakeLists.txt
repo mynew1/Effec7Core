@@ -19,6 +19,7 @@ Custom/Transmog/Transmogrification.h
 Custom/Transmog/Transmogrifier.cpp
 Custom/duel_reset.cpp
 Custom/1v1_arena.cpp
+Custom/boss_cooldown_reset.cpp
 )
 
 message("  -> Prepared: Custom")

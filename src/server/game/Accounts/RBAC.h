@@ -695,16 +695,17 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_PVPSTATS                               = 797,
     RBAC_PERM_COMMAND_MODIFY_XP                              = 798,
 
-    RBAC_PERM_COMMAND_ANTICHEAT_GLOBAL                       = 1000,
-    RBAC_PERM_COMMAND_ANTICHEAT_PLAYER                       = 1001,
-    RBAC_PERM_COMMAND_ANTICHEAT_HANDLE                       = 1002,
-    RBAC_PERM_COMMAND_ANTICHEAT_DELETE                       = 1003,
-    RBAC_PERM_COMMAND_ANTICHEAT_JAIL                         = 1004,
-    RBAC_PERM_COMMAND_ANTICHEAT_WARN                         = 1005,
-    RBAC_PERM_COMMAND_ANTICHEAT_TARGETMARKER                 = 1006,
-    RBAC_PERM_COMMAND_ANTICHEAT                              = 1007,
-
     // custom permissions 1000+
+
+	RBAC_PERM_COMMAND_ANTICHEAT_GLOBAL                       = 1000,
+	RBAC_PERM_COMMAND_ANTICHEAT_PLAYER                       = 1001,
+	RBAC_PERM_COMMAND_ANTICHEAT_HANDLE                       = 1002,
+	RBAC_PERM_COMMAND_ANTICHEAT_DELETE                       = 1003,
+	RBAC_PERM_COMMAND_ANTICHEAT_JAIL                         = 1004,
+	RBAC_PERM_COMMAND_ANTICHEAT_WARN                         = 1005,
+	RBAC_PERM_COMMAND_ANTICHEAT_TARGETMARKER                 = 1006,
+	RBAC_PERM_COMMAND_ANTICHEAT                              = 1007,
+	RBAC_PERM_COMMAND_SPEC_LEAVE                             = 1008,
     RBAC_PERM_MAX
 };
 

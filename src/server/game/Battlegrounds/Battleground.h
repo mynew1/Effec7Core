@@ -301,6 +301,11 @@ class Battleground
         bool HasFreeSlots() const;
         uint32 GetFreeSlotsForTeam(uint32 Team) const;
 
+        typedef std::set<ObjectGuid> SpectatorList;
+        void AddSpectator(ObjectGuid playerId) { m_Spectators.insert(playerId); }
+        void RemoveSpectator(ObjectGuid playerId) { m_Spectators.erase(playerId); }
+        bool HaveSpectators() { return (m_Spectators.size() > 0); }
+
         bool isArena() const        { return m_IsArena; }
         bool isBattleground() const { return !m_IsArena; }
         bool isRated() const        { return m_IsRated; }
@@ -467,6 +472,8 @@ class Battleground
 
         virtual uint32 GetPrematureWinner();
 
+        uint8 GetEvent() { return m_Events; };
+
         std::set<uint64> m_ArenaReadyCheckMap;
         void SendArenaReadyCheck() const;
 
@@ -583,6 +590,9 @@ class Battleground
 
         // Players count by team
         uint32 m_PlayersCount[BG_TEAMS_COUNT];
+
+        // Spectators
+        SpectatorList m_Spectators;
 
         // Arena team ids by team
         uint32 m_ArenaTeamIds[BG_TEAMS_COUNT];

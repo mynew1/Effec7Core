@@ -563,6 +563,10 @@ void GameObject::Update(uint32 diff)
                         if (goInfo->trap.spellId)
                             CastSpell(target, goInfo->trap.spellId);
 
+                        if (Player* tmpPlr = target->ToPlayer())
+                        if (tmpPlr->isSpectator())
+                            return;
+
                         // Template value or 4 seconds
                         m_cooldownTime = time(NULL) + (goInfo->trap.cooldown ? goInfo->trap.cooldown : uint32(4));
                         m_armTime = 0;
@@ -1763,6 +1767,11 @@ void GameObject::CastSpell(Unit* target, uint32 spellId, bool triggered /*= true
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
+        return;
+
+    if (target)
+    if (Player* tmpPlr = target->ToPlayer())
+    if (tmpPlr->isSpectator())
         return;
 
     bool self = false;

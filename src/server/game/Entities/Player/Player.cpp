@@ -908,6 +908,10 @@ Player::Player(WorldSession* session): Unit(true)
     _activeCheats = CHEAT_NONE;
     m_achievementMgr = new AchievementMgr(this);
     m_reputationMgr = new ReputationMgr(this);
+
+    // Arena Spectator
+    spectatorFlag = false;
+    spectateCanceled = false;
 }
 
 Player::~Player()
@@ -2408,7 +2412,18 @@ bool Player::TeleportToBGEntryPoint()
     ScheduleDelayedOperation(DELAYED_BG_MOUNT_RESTORE);
     ScheduleDelayedOperation(DELAYED_BG_TAXI_RESTORE);
     ScheduleDelayedOperation(DELAYED_BG_GROUP_RESTORE);
-    return TeleportTo(m_bgData.joinPos);
+
+    Battleground* oldBg = GetBattleground();
+    bool result = TeleportTo(m_bgData.joinPos);
+
+    if (isSpectator() && result)
+    {
+        SetSpectate(false);
+        if (oldBg)
+            oldBg->RemoveSpectator(GetGUID());
+    }
+
+    return result;
 }
 
 void Player::ProcessDelayedOperations()
@@ -2929,6 +2944,72 @@ void Player::SetGMVisible(bool on)
 
         m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, GetSession()->GetSecurity());
     }
+}
+
+void Player::SetSpectate(bool on)
+{
+    if (on)
+    {
+        SetSpeed(MOVE_RUN, 2.5);
+        spectatorFlag = true;
+
+        m_ExtraFlags |= PLAYER_EXTRA_GM_ON;
+        setFaction(35);
+
+        if (Pet* pet = GetPet())
+        {
+            RemovePet(pet, PET_SAVE_AS_CURRENT);
+        }
+
+        UnsummonPetTemporaryIfAny();
+
+        RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+        ResetContestedPvP();
+
+        getHostileRefManager().setOnlineOfflineState(false);
+        CombatStopWithPets();
+
+        // random dispay id`s
+        uint32 morphs[8] = { 25900, 18718, 29348, 22235, 30414, 736, 20582, 28213 };
+        SetDisplayId(morphs[urand(0, 7)]);
+
+        m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_ADMINISTRATOR);
+    }
+    else
+    {
+        uint32 newPhase = 0;
+        AuraEffectList const& phases = GetAuraEffectsByType(SPELL_AURA_PHASE);
+        
+        if (!phases.empty())
+        for (AuraEffectList::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
+            newPhase |= (*itr)->GetMiscValue();
+
+        if (!newPhase)
+            newPhase = PHASEMASK_NORMAL;
+
+        SetPhaseMask(newPhase, false);
+
+        m_ExtraFlags &= ~PLAYER_EXTRA_GM_ON;
+        setFactionForRace(getRace());
+        RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_GM);
+        RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
+
+        // restore FFA PvP Server state
+        if (sWorld->IsFFAPvPRealm())
+            SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+
+        // restore FFA PvP area state, remove not allowed for GM mounts
+        UpdateArea(m_areaUpdateId);
+
+        getHostileRefManager().setOnlineOfflineState(true);
+        m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_PLAYER);
+        spectateCanceled = false;
+        spectatorFlag = false;
+        RestoreDisplayId();
+        UpdateSpeed(MOVE_RUN, true);
+    }
+
+    UpdateObjectVisibility();
 }
 
 bool Player::IsGroupVisibleFor(Player const* p) const

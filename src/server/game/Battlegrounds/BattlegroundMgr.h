@@ -55,6 +55,8 @@ struct BattlegroundTemplate
     bool IsArena() const { return BattlemasterEntry->type == MAP_ARENA; }
 };
 
+typedef std::map<BattlegroundTypeId, BattlegroundData> BattlegroundDataContainer;
+
 class BattlegroundMgr
 {
     private:
@@ -131,13 +133,15 @@ class BattlegroundMgr
             return BATTLEGROUND_TYPE_NONE;
         }
 
+        BattlegroundDataContainer GetAllBattlegrounds() { return bgDataStore; };
+
     private:
         bool CreateBattleground(BattlegroundTemplate const* bgTemplate);
         uint32 CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id);
         static bool IsArenaType(BattlegroundTypeId bgTypeId);
         BattlegroundTypeId GetRandomBG(BattlegroundTypeId id);
 
-        typedef std::map<BattlegroundTypeId, BattlegroundData> BattlegroundDataContainer;
+     //    typedef std::map<BattlegroundTypeId, BattlegroundData> BattlegroundDataContainer;
         BattlegroundDataContainer bgDataStore;
 
         BattlegroundQueue m_BattlegroundQueues[MAX_BATTLEGROUND_QUEUE_TYPES];

@@ -5505,7 +5505,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     if (RandomSpells.empty()) // shouldn't happen
                         return false;
 
-                    uint8 rand_spell = irand(0, (RandomSpells.size() - 1));
+                    uint8 rand_spell = urand(0, (RandomSpells.size() - 1));
                     CastSpell(target, RandomSpells[rand_spell], true, castItem, triggeredByAura, originalCaster);
                     for (std::vector<uint32>::iterator itr = RandomSpells.begin(); itr != RandomSpells.end(); ++itr)
                     {
@@ -5551,7 +5551,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     if (RandomSpells.empty()) // shouldn't happen
                         return false;
 
-                    uint8 rand_spell = irand(0, (RandomSpells.size() - 1));
+                    uint8 rand_spell = urand(0, (RandomSpells.size() - 1));
                     CastSpell(target, RandomSpells[rand_spell], true, castItem, triggeredByAura, originalCaster);
                     for (std::vector<uint32>::iterator itr = RandomSpells.begin(); itr != RandomSpells.end(); ++itr)
                     {
@@ -5892,7 +5892,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             if (dummySpell->SpellIconID == 2218)
             {
                 // Proc only from Abolish desease on self cast
-                if (procSpell->Id != 552 || victim != this || !roll_chance_i(triggerAmount))
+                if (!procSpell || procSpell->Id != 552 || victim != this || !roll_chance_i(triggerAmount))
                     return false;
                 triggered_spell_id = 64136;
                 target = this;
@@ -5942,7 +5942,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 case 55677:
                 {
                     // Dispel Magic shares spellfamilyflag with abolish disease
-                    if (procSpell->SpellIconID != 74)
+                    if (!procSpell || procSpell->SpellIconID != 74)
                         return false;
                     if (!target || !target->IsFriendlyTo(this))
                         return false;
@@ -11941,7 +11941,7 @@ void Unit::ClearInCombat()
         if (HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED))
             SetUInt32Value(UNIT_DYNAMIC_FLAGS, creature->GetCreatureTemplate()->dynamicflags);
 
-        if (creature->IsPet())
+        if (creature->IsPet() || creature->IsGuardian())
         {
             if (Unit* owner = GetOwner())
                 for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)

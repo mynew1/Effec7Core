@@ -1427,6 +1427,7 @@ void AddSC_npc_1v1arena();
 void AddSC_CD();
 void AddSC_ArenaWatcher();
 void AddSC_PresentationOfTheServer();
+void AddSC_Gold_Banker();
 #endif
 
 void AddCustomScripts()
@@ -1441,5 +1442,6 @@ void AddCustomScripts()
     AddSC_CD();
     AddSC_ArenaWatcher();
     AddSC_PresentationOfTheServer();
+    AddSC_Gold_Banker();
 #endif
 }

@@ -1428,6 +1428,7 @@ void AddSC_CD();
 void AddSC_ArenaWatcher();
 void AddSC_PresentationOfTheServer();
 void AddSC_Gold_Banker();
+void AddSC_System_Censure();
 #endif
 
 void AddCustomScripts()
@@ -1443,5 +1444,6 @@ void AddCustomScripts()
     AddSC_ArenaWatcher();
     AddSC_PresentationOfTheServer();
     AddSC_Gold_Banker();
+    AddSC_System_Censure()
 #endif
 }

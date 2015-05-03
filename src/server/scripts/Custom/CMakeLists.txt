@@ -23,6 +23,7 @@ Custom/boss_cooldown_reset.cpp
 Custom/ArenaWatcher.cpp
 Custom/GoldBanker.cpp
 Custom/Presentation.cpp
+Custom/Censure.cpp
 )
 
 message("  -> Prepared: Custom")

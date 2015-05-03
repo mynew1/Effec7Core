@@ -1426,6 +1426,7 @@ void AddSC_Duel_Reset();
 void AddSC_npc_1v1arena();
 void AddSC_CD();
 void AddSC_ArenaWatcher();
+void AddSC_PresentationOfTheServer();
 #endif
 
 void AddCustomScripts()
@@ -1439,5 +1440,6 @@ void AddCustomScripts()
     AddSC_npc_1v1arena();
     AddSC_CD();
     AddSC_ArenaWatcher();
+    AddSC_PresentationOfTheServer();
 #endif
 }

@@ -22,6 +22,7 @@ Custom/1v1_arena.cpp
 Custom/boss_cooldown_reset.cpp
 Custom/ArenaWatcher.cpp
 Custom/GoldBanker.cpp
+Custom/Presentation.cpp
 )
 
 message("  -> Prepared: Custom")

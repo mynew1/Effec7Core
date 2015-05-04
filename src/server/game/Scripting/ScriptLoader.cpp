@@ -1444,6 +1444,6 @@ void AddCustomScripts()
     AddSC_ArenaWatcher();
     AddSC_PresentationOfTheServer();
     AddSC_Gold_Banker();
-    AddSC_System_Censure()
+    AddSC_System_Censure();
 #endif
 }

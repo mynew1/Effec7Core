@@ -757,7 +757,7 @@ int32 Aura::CalcMaxDuration(Unit* caster) const
     return maxDuration;
 }
 
-void Aura::SetDuration(int32 duration, bool withMods)
+void Aura::SetDuration(int32 duration, bool withMods, bool update)
 {
     if (withMods)
         if (Unit* caster = GetCaster())
@@ -765,6 +765,10 @@ void Aura::SetDuration(int32 duration, bool withMods)
                 modOwner->ApplySpellMod(GetId(), SPELLMOD_DURATION, duration);
 
     m_duration = duration;
+
+    if (!update)
+        return;
+
     SetNeedClientUpdateForTargets();
 }
 

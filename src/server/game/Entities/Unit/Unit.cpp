@@ -102,6 +102,24 @@ static bool isAlwaysTriggeredAura[TOTAL_AURAS];
 // Prepare lists
 static bool procPrepared = InitTriggerAuraData();
 
+class DropChargeEvent : public BasicEvent
+{
+    public:
+        DropChargeEvent(Unit* target, uint32 spellId, ObjectGuid caster = ObjectGuid::Empty) : _target(target), _spellId(spellId), _caster(caster) {}
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/)
+        {
+            if (Aura* aura = _target->GetAura(_spellId, _caster))
+                aura->DropCharge();
+            return true;
+        }
+
+private:
+    Unit* _target;
+    uint32 _spellId;
+    ObjectGuid _caster;
+};
+
 DamageInfo::DamageInfo(Unit* _attacker, Unit* _victim, uint32 _damage, SpellInfo const* _spellInfo, SpellSchoolMask _schoolMask, DamageEffectType _damageType)
 : m_attacker(_attacker), m_victim(_victim), m_damage(_damage), m_spellInfo(_spellInfo), m_schoolMask(_schoolMask),
 m_damageType(_damageType), m_attackType(BASE_ATTACK)
@@ -14501,12 +14519,17 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         if (prepare && useCharges && takeCharges)
         {
             // Set charge drop delay (only for missiles)
-            if ((procExtra & PROC_EX_REFLECT) && target && procSpell && procSpell->Speed > 0.0f)
+            if ((procExtra & PROC_EX_REFLECT) && procSpell && procSpell->Speed > 0.0f)
             {
                 // Set up missile speed based delay (from Spell.cpp: Spell::AddUnitTarget()::L2237)
-                uint32 delay = uint32(std::floor(std::max<float>(target->GetDistance(this), 5.0f) / procSpell->Speed * 1000.0f));
+                int32 delay = target ? int32(floor(std::max<float>(target->GetDistance(this), 5.0f) / procSpell->Speed * 1000.0f)) : (1 * IN_MILLISECONDS) / 2;
+
+                // Do not allow aura to be removed too soon (do not update clientside timer)
+                i->aura->SetDuration(std::max<int32>(i->aura->GetDuration(), delay), false, false);
+
                 // Schedule charge drop
-                i->aura->DropChargeDelayed(delay);
+                DropChargeEvent* dropEvent = new DropChargeEvent(this, i->aura->GetId(), i->aura->GetCasterGUID());
+                m_Events.AddEvent(dropEvent, m_Events.CalculateTime(delay));
             }
             else
                 i->aura->DropCharge();

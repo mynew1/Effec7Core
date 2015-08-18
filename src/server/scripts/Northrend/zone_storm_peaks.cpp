@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "SpellHistory.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "Vehicle.h"
@@ -380,7 +381,7 @@ class npc_hyldsmeet_protodrake : public CreatureScript
         class npc_hyldsmeet_protodrakeAI : public CreatureAI
         {
             public:
-                npc_hyldsmeet_protodrakeAI(Creature* creature) : CreatureAI(creature), _accessoryRespawnTimer(0), _vehicleKit(creature->GetVehicleKit()) { }
+                npc_hyldsmeet_protodrakeAI(Creature* creature) : CreatureAI(creature), _accessoryRespawnTimer(0) { }
 
                 void PassengerBoarded(Unit* who, int8 /*seat*/, bool apply) override
                 {
@@ -395,6 +396,7 @@ class npc_hyldsmeet_protodrake : public CreatureScript
                 {
                     //! We need to manually reinstall accessories because the vehicle itself is friendly to players,
                     //! so EnterEvadeMode is never triggered. The accessory on the other hand is hostile and killable.
+                    Vehicle* _vehicleKit = me->GetVehicleKit();
                     if (_accessoryRespawnTimer && _accessoryRespawnTimer <= diff && _vehicleKit)
                     {
                         _vehicleKit->InstallAllAccessories(true);
@@ -406,7 +408,6 @@ class npc_hyldsmeet_protodrake : public CreatureScript
 
             private:
                 uint32 _accessoryRespawnTimer;
-                Vehicle* _vehicleKit;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

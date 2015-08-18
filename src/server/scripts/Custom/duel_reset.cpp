@@ -1,4 +1,5 @@
 #include "ScriptPCH.h"
+#include "SpellHistory.h"
 
 class Duel_Reset : public PlayerScript
 {
@@ -7,8 +8,8 @@ class Duel_Reset : public PlayerScript
 
 		void OnDuelEnd(Player* pWinner, Player* pLoser, DuelCompleteType /*type*/)
 		{
-			pWinner->RemoveAllSpellCooldown();
-			pLoser->RemoveAllSpellCooldown();
+			pWinner->GetSpellHistory()->ResetAllCooldowns();
+			pLoser->GetSpellHistory()->ResetAllCooldowns();
 			pWinner->SetHealth(pWinner->GetMaxHealth());
 			if (pWinner->getPowerType() == POWER_MANA)
 				pWinner->SetPower(POWER_MANA, pWinner->GetMaxPower(POWER_MANA));

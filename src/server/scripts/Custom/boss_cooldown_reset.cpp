@@ -1,4 +1,5 @@
 #include "Group.h"
+#include "SpellHistory.h"
 
 enum SPELL_DEBUFF
 {
@@ -18,7 +19,7 @@ void remove_debuff_and_cooldown(Player* player)
         if (player->HasAura(remove_debuff_spell[i]))
             player->RemoveAura(remove_debuff_spell[i]);
 
-    player->RemoveAllSpellCooldown();
+    player->GetSpellHistory()->ResetAllCooldowns();
 }
 
 void PlayerIsInGroup(Player* player)

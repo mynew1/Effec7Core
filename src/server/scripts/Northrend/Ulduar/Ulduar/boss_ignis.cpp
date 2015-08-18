@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -50,8 +50,8 @@ enum Spells
     SPELL_HEAT                  = 65667,
     SPELL_MOLTEN                = 62373,
     SPELL_BRITTLE               = 62382,
+    SPELL_BRITTLE_25            = 67114,
     SPELL_SHATTER               = 62383,
-    SPELL_SHATTER_HC            = 67114,
     SPELL_GROUND                = 62548,
 };
 
@@ -117,15 +117,22 @@ class boss_ignis : public CreatureScript
 
         struct boss_ignis_AI : public BossAI
         {
-            boss_ignis_AI(Creature* creature) : BossAI(creature, BOSS_IGNIS), _vehicle(me->GetVehicleKit())
+            boss_ignis_AI(Creature* creature) : BossAI(creature, BOSS_IGNIS)
             {
-                ASSERT(_vehicle);
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _slagPotGUID.Clear();
+                _shattered = false;
+                _firstConstructKill = 0;
             }
 
             void Reset() override
             {
                 _Reset();
-                if (_vehicle)
+                if (Vehicle* _vehicle = me->GetVehicleKit())
                     _vehicle->RemoveAllPassengers();
 
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEVEMENT_IGNIS_START_EVENT);
@@ -141,9 +148,7 @@ class boss_ignis : public CreatureScript
                 events.ScheduleEvent(EVENT_CONSTRUCT, 15000);
                 events.ScheduleEvent(EVENT_END_POT, 40000);
                 events.ScheduleEvent(EVENT_BERSERK, 480000);
-                _slagPotGUID = ObjectGuid::Empty;
-                _shattered = false;
-                _firstConstructKill = 0;
+                Initialize();
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEVEMENT_IGNIS_START_EVENT);
             }
 
@@ -164,10 +169,7 @@ class boss_ignis : public CreatureScript
             void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
-                {
                     Talk(SAY_SLAY);
-                    instance->SetData(DATA_CRITERIA_IGNIS, 1);
-                }
             }
 
             void JustSummoned(Creature* summon) override
@@ -217,7 +219,7 @@ class boss_ignis : public CreatureScript
                             events.ScheduleEvent(EVENT_JET, urand(35000, 40000));
                             break;
                         case EVENT_SLAG_POT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                             {
                                 Talk(SAY_SLAG_POT);
                                 _slagPotGUID = target->GetGUID();
@@ -238,7 +240,7 @@ class boss_ignis : public CreatureScript
                         case EVENT_CHANGE_POT:
                             if (Unit* slagPotTarget = ObjectAccessor::GetUnit(*me, _slagPotGUID))
                             {
-                                slagPotTarget->AddAura(SPELL_SLAG_POT, slagPotTarget);
+                                DoCast(slagPotTarget, SPELL_SLAG_POT, true);
                                 slagPotTarget->EnterVehicle(me, 1);
                                 events.CancelEvent(EVENT_CHANGE_POT);
                                 events.ScheduleEvent(EVENT_END_POT, 10000);
@@ -249,7 +251,7 @@ class boss_ignis : public CreatureScript
                             {
                                 slagPotTarget->ExitVehicle();
                                 slagPotTarget = NULL;
-								_slagPotGUID = ObjectGuid::Empty;
+                                _slagPotGUID.Clear();
                                 events.CancelEvent(EVENT_END_POT);
                             }
                             break;
@@ -281,7 +283,6 @@ class boss_ignis : public CreatureScript
 
         private:
             ObjectGuid _slagPotGUID;
-            Vehicle* _vehicle;
             time_t _firstConstructKill;
             bool _shattered;
 
@@ -302,17 +303,23 @@ class npc_iron_construct : public CreatureScript
         {
             npc_iron_constructAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
+                Initialize();
                 creature->SetReactState(REACT_PASSIVE);
             }
 
-            void Reset() override
+            void Initialize()
             {
                 _brittled = false;
             }
 
+            void Reset() override
+            {
+                Initialize();
+            }
+
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
-                if (me->HasAura(RAID_MODE(SPELL_BRITTLE, SPELL_SHATTER_HC)) && damage >= 5000)
+                if (me->HasAura(RAID_MODE(SPELL_BRITTLE, SPELL_BRITTLE_25)) && damage >= 5000)
                 {
                     DoCast(SPELL_SHATTER);
                     if (Creature* ignis = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_IGNIS)))
@@ -321,12 +328,6 @@ class npc_iron_construct : public CreatureScript
 
                     me->DespawnOrUnsummon(1000);
                 }
-            }
-            
-            void KilledUnit(Unit* who) override
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    me->GetInstanceScript()->SetData(DATA_CRITERIA_IGNIS, 1);
             }
 
             void UpdateAI(uint32 /*uiDiff*/) override
@@ -375,12 +376,19 @@ class npc_scorch_ground : public CreatureScript
         {
             npc_scorch_groundAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE |UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
                 creature->SetDisplayId(16925); //model 2 in db cannot overwrite wdb fields
             }
 
-            void MoveInLineOfSight(Unit* who) override
+            void Initialize()
+            {
+                _heat = false;
+                _constructGUID.Clear();
+                _heatTimer = 0;
+            }
 
+            void MoveInLineOfSight(Unit* who) override
             {
                 if (!_heat)
                 {
@@ -397,10 +405,8 @@ class npc_scorch_ground : public CreatureScript
 
             void Reset() override
             {
-                _heat = false;
+                Initialize();
                 DoCast(me, SPELL_GROUND);
-                _constructGUID = ObjectGuid::Empty;
-                _heatTimer = 0;
             }
 
             void UpdateAI(uint32 uiDiff) override
@@ -450,14 +456,13 @@ class spell_ignis_slag_pot : public SpellScriptLoader
                 return true;
             }
 
-            void HandleEffectPeriodic(AuraEffect const* aurEff)
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
             {
-                Unit* aurEffCaster = aurEff->GetCaster();
-                if (!aurEffCaster)
-                    return;
-
-                Unit* target = GetTarget();
-                aurEffCaster->CastSpell(target, SPELL_SLAG_POT_DAMAGE, true);
+                if (Unit* caster = GetCaster())
+                {
+                    Unit* target = GetTarget();
+                    caster->CastSpell(target, SPELL_SLAG_POT_DAMAGE, true);
+                }
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -486,7 +491,10 @@ class achievement_ignis_shattered : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*source*/, Unit* target) override
         {
-            return target && target->GetAI()->GetData(DATA_SHATTERED);
+            if (target && target->IsAIEnabled)
+                return target->GetAI()->GetData(DATA_SHATTERED) != 0;
+
+            return false;
         }
 };
 

@@ -126,7 +126,7 @@ public:
 		loc.m_positionX = 16226.5f;
 		loc.m_positionY = 16403.6f;
 		loc.m_positionZ = -64.5f;
-		loc.m_orientation = 3.2f;
+		loc.SetOrientation(3.2f);
 
 		pTarget->SetHomebind(loc,876);
 		return true;

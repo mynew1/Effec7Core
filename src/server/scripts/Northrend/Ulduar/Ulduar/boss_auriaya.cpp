@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -107,15 +107,21 @@ class boss_auriaya : public CreatureScript
         {
             boss_auriayaAI(Creature* creature) : BossAI(creature, BOSS_AURIAYA)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                DefenderGUID.Clear();
+                defenderLives = 8;
+                crazyCatLady = true;
+                nineLives = false;
             }
 
             void Reset() override
             {
                 _Reset();
-                DefenderGUID = ObjectGuid::Empty;
-                defenderLives = 8;
-                crazyCatLady = true;
-                nineLives = false;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -134,10 +140,7 @@ class boss_auriaya : public CreatureScript
             void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
-                {
-                    instance->SetData(DATA_CRITERIA_AURIAYA, 1);
                     Talk(SAY_SLAY);
-                }
             }
 
             void JustSummoned(Creature* summoned) override
@@ -306,12 +309,6 @@ class npc_auriaya_seeping_trigger : public CreatureScript
                 DoCast(me, SPELL_SEEPING_ESSENCE);
             }
 
-            void KilledUnit(Unit* who) override
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    me->GetInstanceScript()->SetData(DATA_CRITERIA_AURIAYA, 1);
-            }
-
             void UpdateAI(uint32 /*diff*/) override
             {
                 if (instance->GetBossState(BOSS_AURIAYA) != IN_PROGRESS)
@@ -349,13 +346,6 @@ class npc_sanctum_sentry : public CreatureScript
             void EnterCombat(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_STRENGHT_PACK, true);
-            }
-
-            
-            void KilledUnit(Unit* who) override
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    me->GetInstanceScript()->SetData(DATA_CRITERIA_AURIAYA, 1);
             }
 
             void UpdateAI(uint32 diff) override
@@ -426,12 +416,6 @@ class npc_feral_defender : public CreatureScript
             {
                 events.ScheduleEvent(EVENT_FERAL_POUNCE, 5000);
                 events.ScheduleEvent(EVENT_RUSH, 10000);
-            }
-
-            void KilledUnit(Unit* who) override
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    me->GetInstanceScript()->SetData(DATA_CRITERIA_AURIAYA, 1);
             }
 
             void UpdateAI(uint32 diff) override

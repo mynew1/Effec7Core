@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -105,6 +105,15 @@ class boss_general_vezax : public CreatureScript
         {
             boss_general_vezaxAI(Creature* creature) : BossAI(creature, BOSS_VEZAX)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                shadowDodger = true;
+                smellSaronite = true;
+                animusDead = false;
+                vaporCount = 0;
             }
 
             bool shadowDodger;
@@ -116,10 +125,7 @@ class boss_general_vezax : public CreatureScript
             {
                 _Reset();
 
-                shadowDodger = true;
-                smellSaronite = true;
-                animusDead = false;
-                vaporCount = 0;
+                Initialize();
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -216,10 +222,7 @@ class boss_general_vezax : public CreatureScript
             void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
-                {
-                    instance->SetData(DATA_CRITERIA_GENERAL_VEZAX, 1);
                     Talk(SAY_SLAY);
-                }
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -331,12 +334,6 @@ class boss_saronite_animus : public CreatureScript
                 DoCast(me, SPELL_VISUAL_SARONITE_ANIMUS);
                 events.Reset();
                 events.ScheduleEvent(EVENT_PROFOUND_OF_DARKNESS, 3000);
-            }
-
-            void KilledUnit(Unit* who) override
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    me->GetInstanceScript()->SetData(DATA_CRITERIA_GENERAL_VEZAX, 1);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -535,7 +532,7 @@ class spell_general_vezax_saronite_vapors : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    int32 mana = int32(aurEff->GetAmount() * pow(2.0f, GetStackAmount())); // mana restore - bp * 2^stackamount
+                    int32 mana = int32(aurEff->GetAmount() * std::pow(2.0f, GetStackAmount())); // mana restore - bp * 2^stackamount
                     int32 damage = mana * 2;
                     caster->CastCustomSpell(GetTarget(), SPELL_SARONITE_VAPORS_ENERGIZE, &mana, NULL, NULL, true);
                     caster->CastCustomSpell(GetTarget(), SPELL_SARONITE_VAPORS_DAMAGE, &damage, NULL, NULL, true);

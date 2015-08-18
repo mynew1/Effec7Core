@@ -1609,8 +1609,8 @@ void SpellMgr::LoadSpellTargetPositions()
 
     mSpellTargetPositions.clear();                                // need for reload case
 
-    //                                                0      1          2             3                  4                  5                   6
-    QueryResult result = WorldDatabase.Query("SELECT id, effIndex, target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM spell_target_position");
+    //                                                0      1          2        3         4           5            6
+    QueryResult result = WorldDatabase.Query("SELECT ID, EffectIndex, MapID, PositionX, PositionY, PositionZ, Orientation FROM spell_target_position");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 spell target coordinates. DB table `spell_target_position` is empty.");
@@ -2955,6 +2955,10 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         switch (spellInfo->Id)
         {
+            case 63026: // Force Cast (HACK: Target shouldn't be changed)
+            case 63137: // Force Cast (HACK: Target shouldn't be changed; summon position should be untied from spell destination)
+                spellInfo->Effects[0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
+                break;
             case 53096: // Quetz'lun's Judgment
             case 70743: // AoD Special
             case 70614: // AoD Special - Vegard
@@ -3162,6 +3166,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 64823: // Item - Druid T8 Balance 4P Bonus
             case 34477: // Misdirection
             case 44401: // Missile Barrage
+            case 18820: // Insight
                 spellInfo->ProcCharges = 1;
                 break;
             case 44544: // Fingers of Frost
@@ -3174,6 +3179,11 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 28200: // Ascendance (Talisman of Ascendance trinket)
                 spellInfo->ProcCharges = 6;
                 break;
+            case 49224: // Magic Suppression - DK
+            case 49610: // Magic Suppression - DK
+            case 49611: // Magic Suppression - DK
+                spellInfo->ProcCharges = 0;
+                break;
             case 37408: // Oscillation Field
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
@@ -3184,6 +3194,11 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 47205:
                 // add corruption to affected spells
                 spellInfo->Effects[EFFECT_1].SpellClassMask[0] |= 2;
+                break;
+            case 57470: // Renewed Hope (Rank 1)
+            case 57472: // Renewed Hope (Rank 2)
+                // should also affect Flash Heal
+                spellInfo->Effects[EFFECT_0].SpellClassMask[0] |= 0x800;
                 break;
             case 51852: // The Eye of Acherus (no spawn in phase 2 in db)
                 spellInfo->Effects[EFFECT_0].MiscValue |= 1;
@@ -3278,6 +3293,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 50526: // Wandering Plague (DK)
                 spellInfo->AttributesEx4 |= SPELL_ATTR4_FIXED_DAMAGE;
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+				spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
                 break;
             case 57994: // Wind Shear - improper data for EFFECT_1 in 3.3.5 DBC, but is correct in 4.x
                 spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_MODIFY_THREAT_PERCENT;
@@ -3287,6 +3303,8 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 67118: // Item - Death Knight T9 Melee 4P Bonus
             case 67150: // Item - Hunter T9 2P Bonus
                 spellInfo->Effects[EFFECT_1].Effect = 0;
+            case 15290: // Vampiric Embrace
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
                 break;
             case 63675: // Improved Devouring Plague
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
@@ -3595,6 +3613,13 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 71415: // Orange Ooze Summon (Professor Putricide)
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
                 break;
+            case 69783: // Ooze flood
+            case 69797: // Ooze flood
+            case 69799: // Ooze flood
+            case 69802: // Ooze flood
+                // Those spells are cast on creatures with same entry as caster while they have TARGET_UNIT_NEARBY_ENTRY.
+                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
+                break;
             case 71159: // Awaken Plagued Zombies
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21);
                 break;
@@ -3623,12 +3648,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 72855: // Unbound Plague (Professor Putricide) (needs target selection script)
             case 72856: // Unbound Plague (Professor Putricide) (needs target selection script)
                 spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ENEMY);
-                break;
-            case 69783: // Ooze Flood (Rotface)
-            case 69797: // Ooze Flood (Rotface)
-            case 69799: // Ooze Flood (Rotface)
-            case 69802: // Ooze Flood (Rotface)
-                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
                 break;
             case 71518: // Unholy Infusion Quest Credit (Professor Putricide)
             case 72934: // Blood Infusion Quest Credit (Blood-Queen Lana'thel)
@@ -3844,11 +3863,6 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             // ENDOF ISLE OF CONQUEST SPELLS
             //
-            case 49224: // Magic Suppression
-            case 49610:
-            case 49611:
-                spellInfo->ProcCharges = 0;
-                break;
             case 11389: // Detect Undead
                 spellInfo->ManaPerSecond = 0;
                 break;

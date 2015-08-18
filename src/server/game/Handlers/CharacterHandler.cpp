@@ -36,10 +36,10 @@
 #include "PlayerDump.h"
 #include "Player.h"
 #include "ReputationMgr.h"
+#include "GitRevision.h"
 #include "ScriptMgr.h"
 #include "SharedDefines.h"
 #include "SocialMgr.h"
-#include "SystemConfig.h"
 #include "UpdateMask.h"
 #include "Util.h"
 #include "World.h"
@@ -827,7 +827,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
         // send server info
         if (sWorld->getIntConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
-            chH.PSendSysMessage(_FULLVERSION);
+            chH.PSendSysMessage(GitRevision::GetFullVersion());
 
         TC_LOG_DEBUG("network", "WORLD: Sent server info");
     }
@@ -1983,9 +1983,9 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 stmt->setUInt32(0, oldReputation);
                 stmt->setUInt32(1, lowGuid);
 
-                if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+                if (PreparedQueryResult reputationResult = CharacterDatabase.Query(stmt))
                 {
-                    Field* fields = result->Fetch();
+                    fields = reputationResult->Fetch();
                     int32 oldDBRep = fields[0].GetInt32();
                     FactionEntry const* factionEntry = sFactionStore.LookupEntry(oldReputation);
 
